@@ -31,7 +31,7 @@ export default function CategoriesPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">Categories</h1>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="text-sm text-forest-600 dark:text-muted-foreground">
               Organize your products
             </p>
           </div>

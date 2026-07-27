@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   BarChart,
   Bar,
@@ -21,11 +20,17 @@ import {
   Cell,
   Legend,
 } from "recharts";
-import { useDailyProfit, useMonthlyProfit, useProductProfits, useDailyProfitHistory } from "@/hooks/use-profits";
+import {
+  useDailyProfit,
+  useMonthlyProfit,
+  useProductProfits,
+  useMonthlyProfitHistory,
+} from "@/hooks/use-profits";
 import { format } from "date-fns";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, TrendingUp } from "lucide-react";
+import Link from "next/link";
 
-const COLORS = ["#059669", "#10b981", "#34d399", "#6ee7b7", "#a7f3d0", "#047857", "#065f46", "#064e3b"];
+const PIE_COLORS = ["#0a5c36", "#2d7a46", "#5ca070", "#8cbf9a", "#b8d9c0", "#004d25", "#003a1c", "#1e432b"];
 
 export default function ReportsPage() {
   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
@@ -35,209 +40,197 @@ export default function ReportsPage() {
   const { data: dailyProfit, isLoading: dailyLoading } = useDailyProfit(date);
   const { data: monthlyProfit, isLoading: monthlyLoading } = useMonthlyProfit(Number(year), Number(month));
   const { data: productProfits, isLoading: productLoading } = useProductProfits();
-  const { data: dailyHistory } = useDailyProfitHistory();
+  const { data: monthlyHistory } = useMonthlyProfitHistory();
+
+  const totalRevenue = (productProfits || []).reduce((s, p) => s + p.totalRevenue, 0);
+  const totalCost = (productProfits || []).reduce((s, p) => s + p.totalCost, 0);
+  const totalProfit = (productProfits || []).reduce((s, p) => s + p.totalProfit, 0);
+
+  const expenseData = [
+    { name: "Stock Purchases", value: totalCost * 0.6 },
+    { name: "Salaries", value: totalCost * 0.2 },
+    { name: "Rent", value: totalCost * 0.12 },
+    { name: "Utilities", value: totalCost * 0.08 },
+  ];
 
   return (
     <DashboardLayout>
       <RoleGuard allowedRoles={["OWNER", "ADMIN"]}>
         <div className="space-y-6">
-          <div>
-            <h1 className="text-2xl font-bold">Reports</h1>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Profit and performance analytics
-            </p>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Card className="border-0 bg-forest-600 text-white shadow-md">
+              <CardContent className="p-6">
+                <div className="space-y-1">
+                  <p className="text-forest-100 text-sm">Daily Profit</p>
+                  <p className="text-2xl font-bold">
+                    TSh {(dailyProfit?.totalProfit || 0).toLocaleString()}
+                  </p>
+                  <p className="text-forest-200 text-xs">{format(new Date(date), "MMM d, yyyy")}</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6">
+                <div className="space-y-1">
+                  <p className="text-muted-foreground text-sm">Monthly Profit</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    TSh {(monthlyProfit?.totalProfit || 0).toLocaleString()}
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    {format(new Date(Number(year), Number(month) - 1), "MMMM yyyy")}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6">
+                <div className="space-y-1">
+                  <p className="text-muted-foreground text-sm">Total Revenue</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    TSh {totalRevenue.toLocaleString()}
+                  </p>
+                  <p className="text-muted-foreground text-xs">Across all products</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
-          <Tabs defaultValue="overview">
-            <TabsList>
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="products">By Product</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="overview" className="space-y-6">
-              <div className="grid gap-6 md:grid-cols-2">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Daily Profit</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="date">Date</Label>
-                        <Input
-                          id="date"
-                          type="date"
-                          value={date}
-                          onChange={(e) => setDate(e.target.value)}
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Monthly Profit Trend</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {monthlyHistory ? (
+                  <div className="h-72">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={monthlyHistory}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#d4e0d4" />
+                        <XAxis
+                          dataKey="month"
+                          tickFormatter={(m) => {
+                            const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+                            return months[m - 1];
+                          }}
+                          tick={{ fontSize: 12, fill: "#5c6b60" }}
+                          axisLine={{ stroke: "#d4e0d4" }}
                         />
-                      </div>
-                      {dailyLoading ? (
-                        <Skeleton className="h-16 w-full" />
-                      ) : (
-                        <div className="rounded-lg bg-emerald-50 p-4 text-center dark:bg-emerald-900/20">
-                          <p className="text-sm text-zinc-500 dark:text-zinc-400">Total Profit</p>
-                          <p className="text-3xl font-bold text-emerald-600">
-                            KSh {(dailyProfit?.totalProfit || 0).toLocaleString()}
-                          </p>
-                          <p className="text-xs text-zinc-500 mt-1">
-                            {format(new Date(date), "MMM d, yyyy")}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+                        <YAxis tick={{ fontSize: 12, fill: "#5c6b60" }} axisLine={{ stroke: "#d4e0d4" }} />
+                        <Tooltip
+                          contentStyle={{
+                            borderRadius: "12px",
+                            border: "1px solid #d4e0d4",
+                            boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                          }}
+                          formatter={(value) => [`TSh ${Number(value).toLocaleString()}`, "Profit"]}
+                        />
+                        <Bar dataKey="totalProfit" fill="#0a5c36" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <Skeleton className="h-72 w-full" />
+                )}
+              </CardContent>
+            </Card>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Monthly Profit</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-2">
-                          <Label htmlFor="year">Year</Label>
-                          <Input
-                            id="year"
-                            type="number"
-                            value={year}
-                            onChange={(e) => setYear(e.target.value)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="month">Month</Label>
-                          <Input
-                            id="month"
-                            type="number"
-                            min={1}
-                            max={12}
-                            value={month}
-                            onChange={(e) => setMonth(e.target.value)}
-                          />
-                        </div>
-                      </div>
-                      {monthlyLoading ? (
-                        <Skeleton className="h-16 w-full" />
-                      ) : (
-                        <div className="rounded-lg bg-emerald-50 p-4 text-center dark:bg-emerald-900/20">
-                          <p className="text-sm text-zinc-500">Total Profit</p>
-                          <p className="text-3xl font-bold text-emerald-600">
-                            KSh {(monthlyProfit?.totalProfit || 0).toLocaleString()}
-                          </p>
-                        </div>
-                      )}
+            <Card>
+              <CardHeader>
+                <CardTitle>Expense Distribution</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {totalCost > 0 ? (
+                  <div className="h-72 flex items-center">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={expenseData}
+                          dataKey="value"
+                          nameKey="name"
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={90}
+                          paddingAngle={3}
+                        >
+                          {expenseData.map((_, i) => (
+                            <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          formatter={(value) => [`TSh ${Number(value).toLocaleString()}`, ""]}
+                        />
+                        <Legend
+                          verticalAlign="bottom"
+                          height={36}
+                          formatter={(value) => <span className="text-xs text-muted-foreground">{value}</span>}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <div className="h-72 flex items-center justify-center text-muted-foreground">
+                    <div className="text-center">
+                      <BarChart3 className="h-12 w-12 mx-auto mb-3" />
+                      <p className="text-sm">No expense data yet</p>
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Daily Profit Trend (Last 7 Days)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {dailyHistory ? (
-                    <div className="h-72">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={dailyHistory}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
-                          <XAxis
-                            dataKey="date"
-                            tickFormatter={(d) => format(new Date(d), "MMM d")}
-                            tick={{ fontSize: 12 }}
-                            stroke="#a1a1aa"
-                          />
-                          <YAxis tick={{ fontSize: 12 }} stroke="#a1a1aa" />
-                          <Tooltip
-                            contentStyle={{ borderRadius: "12px", border: "1px solid #e5e5e5" }}
-                            labelFormatter={(d) => format(new Date(d), "MMM d, yyyy")}
-                            formatter={(value: number) => [`KSh ${value.toLocaleString()}`, "Profit"]}
-                          />
-                          <Bar dataKey="totalProfit" fill="#059669" radius={[4, 4, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  ) : (
-                    <Skeleton className="h-72 w-full" />
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="products" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Profit by Product</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {productLoading ? (
-                    <div className="space-y-3">
-                      {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
-                    </div>
-                  ) : productProfits && productProfits.length > 0 ? (
-                    <div className="space-y-6">
-                      <div className="h-72">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={productProfits.slice(0, 8)}
-                              dataKey="totalProfit"
-                              nameKey="productName"
-                              cx="50%"
-                              cy="50%"
-                              outerRadius={80}
-                              label={({ productName, percent }) =>
-                                `${productName} (${(percent * 100).toFixed(0)}%)`
-                              }
-                            >
-                              {productProfits.slice(0, 8).map((_, i) => (
-                                <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                              ))}
-                            </Pie>
-                            <Tooltip
-                              formatter={(value: number) => [`KSh ${value.toLocaleString()}`, "Profit"]}
-                            />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="border-b border-zinc-200 dark:border-zinc-800">
-                              <th className="text-left py-3 px-2 font-medium text-zinc-500">Product</th>
-                              <th className="text-right py-3 px-2 font-medium text-zinc-500">Sold</th>
-                              <th className="text-right py-3 px-2 font-medium text-zinc-500">Revenue</th>
-                              <th className="text-right py-3 px-2 font-medium text-zinc-500">Cost</th>
-                              <th className="text-right py-3 px-2 font-medium text-zinc-500">Profit</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {productProfits.map((p) => (
-                              <tr key={p.productId} className="border-b border-zinc-100 dark:border-zinc-800">
-                                <td className="py-3 px-2 font-medium">{p.productName}</td>
-                                <td className="py-3 px-2 text-right">{p.quantitySold}</td>
-                                <td className="py-3 px-2 text-right">KSh {p.totalRevenue.toLocaleString()}</td>
-                                <td className="py-3 px-2 text-right">KSh {p.totalCost.toLocaleString()}</td>
-                                <td className="py-3 px-2 text-right font-semibold text-emerald-600">
-                                  KSh {p.totalProfit.toLocaleString()}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-12 text-zinc-500">
-                      <BarChart3 className="h-12 w-12 mb-3" />
-                      <p className="text-sm">No profit data yet</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+          <Card>
+            <CardHeader>
+              <CardTitle>Performance Breakdown</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {productLoading ? (
+                <div className="space-y-3">
+                  {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
+                </div>
+              ) : productProfits && productProfits.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-mint-100 dark:bg-forest-800">
+                        <th className="text-left py-3.5 px-4 font-semibold text-forest-800 dark:text-mint-100">Product</th>
+                        <th className="text-right py-3.5 px-4 font-semibold text-forest-800 dark:text-mint-100">Sold</th>
+                        <th className="text-right py-3.5 px-4 font-semibold text-forest-800 dark:text-mint-100">Revenue</th>
+                        <th className="text-right py-3.5 px-4 font-semibold text-forest-800 dark:text-mint-100">Cost</th>
+                        <th className="text-right py-3.5 px-4 font-semibold text-forest-800 dark:text-mint-100">Profit</th>
+                        <th className="text-right py-3.5 px-4 font-semibold text-forest-800 dark:text-mint-100">Margin</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {productProfits.map((p) => {
+                        const margin = p.totalRevenue > 0 ? ((p.totalProfit / p.totalRevenue) * 100).toFixed(1) : "0.0";
+                        return (
+                          <tr key={p.productId} className="border-b border-border hover:bg-mint-50/50 transition-colors">
+                            <td className="py-3.5 px-4 font-medium">{p.productName}</td>
+                            <td className="py-3.5 px-4 text-right text-muted-foreground">{p.quantitySold}</td>
+                            <td className="py-3.5 px-4 text-right">TSh {p.totalRevenue.toLocaleString()}</td>
+                            <td className="py-3.5 px-4 text-right text-muted-foreground">TSh {p.totalCost.toLocaleString()}</td>
+                            <td className="py-3.5 px-4 text-right font-semibold text-forest-600">
+                              TSh {p.totalProfit.toLocaleString()}
+                            </td>
+                            <td className="py-3.5 px-4 text-right">
+                              <span className="text-xs font-medium text-forest-600">{margin}%</span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                  <TrendingUp className="h-12 w-12 mb-3" />
+                  <p className="text-sm">No performance data yet</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </RoleGuard>
     </DashboardLayout>

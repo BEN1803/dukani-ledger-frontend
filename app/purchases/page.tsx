@@ -56,7 +56,7 @@ export default function PurchasesPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">Purchases</h1>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">Record product purchases</p>
+            <p className="text-sm text-forest-600 dark:text-muted-foreground">Record product purchases</p>
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -87,7 +87,7 @@ export default function PurchasesPage() {
                     {errors.quantity && <p className="text-xs text-red-500">{errors.quantity.message}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="costPrice">Cost Price (KSh)</Label>
+                    <Label htmlFor="costPrice">Cost Price (TSh)</Label>
                     <Input id="costPrice" type="number" step="0.01" min="0.01" placeholder="150" {...register("costPrice")} />
                     {errors.costPrice && <p className="text-xs text-red-500">{errors.costPrice.message}</p>}
                   </div>
@@ -130,9 +130,9 @@ export default function PurchasesPage() {
                           <td className="py-3 px-2 font-medium">{p.productName}</td>
                           <td className="py-3 px-2 text-zinc-500">{p.category}</td>
                           <td className="py-3 px-2 text-right">{p.quantity}</td>
-                          <td className="py-3 px-2 text-right">KSh {p.costPrice.toLocaleString()}</td>
+                          <td className="py-3 px-2 text-right">TSh {p.costPrice.toLocaleString()}</td>
                           <td className="py-3 px-2 text-right font-medium">
-                            KSh {(p.costPrice * p.quantity).toLocaleString()}
+                            TSh {(p.costPrice * p.quantity).toLocaleString()}
                           </td>
                           <td className="py-3 px-2 text-zinc-500">{p.purchasedByName}</td>
                           <td className="py-3 px-2 text-zinc-500">
@@ -144,9 +144,9 @@ export default function PurchasesPage() {
                   </table>
                 </div>
                 <div className="flex items-center justify-between pt-4">
-                  <p className="text-sm text-zinc-500">
-                    Page {data.number + 1} of {data.totalPages}
-                  </p>
+<p className="text-sm text-forest-600">
+                     Page {data.number + 1} of {data.totalPages}
+                   </p>
                   <div className="flex gap-2">
                     <Button
                       variant="outline"

@@ -19,7 +19,7 @@ export default function ActivityLogsPage() {
         <div className="space-y-6">
           <div>
             <h1 className="text-2xl font-bold">Activity Logs</h1>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="text-sm text-forest-600 dark:text-muted-foreground">
               Track all actions performed in the system
             </p>
           </div>
@@ -64,9 +64,9 @@ export default function ActivityLogsPage() {
                     </table>
                   </div>
                   <div className="flex items-center justify-between pt-4">
-                    <p className="text-sm text-zinc-500">
-                      Page {data.number + 1} of {data.totalPages}
-                    </p>
+<p className="text-sm text-forest-600">
+                       Page {data.number + 1} of {data.totalPages}
+                     </p>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" disabled={data.first} onClick={() => setPage((p) => p - 1)}>
                         Previous

@@ -12,7 +12,7 @@ export default function UnauthorizedPage() {
           <ShieldAlert className="h-10 w-10 text-red-600 dark:text-red-400" />
         </div>
         <h1 className="text-2xl font-bold">Unauthorized</h1>
-        <p className="mt-2 text-zinc-500 dark:text-zinc-400">
+        <p className="mt-2 text-forest-600 dark:text-muted-foreground">
           You don&apos;t have permission to access this page.
         </p>
         <Button asChild className="mt-6">

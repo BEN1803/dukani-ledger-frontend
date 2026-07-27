@@ -24,10 +24,10 @@ export function Breadcrumbs() {
   const segments = pathname.split("/").filter(Boolean);
 
   return (
-    <nav className="flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400">
+    <nav className="flex items-center gap-1.5 text-sm text-forest-600 dark:text-muted-foreground">
       <Link
         href="/dashboard"
-        className="hover:text-emerald-600 transition-colors"
+        className="hover:text-forest-700 transition-colors"
       >
         <Home className="h-4 w-4" />
       </Link>
@@ -40,13 +40,13 @@ export function Breadcrumbs() {
           <span key={segment} className="flex items-center gap-1.5">
             <ChevronRight className="h-3.5 w-3.5" />
             {isLast ? (
-              <span className="text-zinc-900 dark:text-zinc-100 font-medium">
+              <span className="text-forest-900 dark:text-mint-100 font-medium">
                 {label}
               </span>
             ) : (
               <Link
                 href={href}
-                className="hover:text-emerald-600 transition-colors"
+                className="hover:text-forest-700 transition-colors"
               >
                 {label}
               </Link>

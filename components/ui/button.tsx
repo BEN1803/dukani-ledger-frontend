@@ -4,16 +4,16 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 active:bg-emerald-800",
-        destructive: "bg-red-500 text-white shadow-sm hover:bg-red-600 active:bg-red-700",
-        outline: "border border-zinc-200 bg-white shadow-sm hover:bg-zinc-50 hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900 dark:hover:text-zinc-50",
-        secondary: "bg-zinc-100 text-zinc-900 shadow-sm hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-50 dark:hover:bg-zinc-700",
-        ghost: "hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-50",
-        link: "text-emerald-600 underline-offset-4 hover:underline",
+        default: "bg-forest-600 text-white shadow-sm hover:bg-forest-700 active:bg-forest-800",
+        destructive: "bg-red-600 text-white shadow-sm hover:bg-red-700 active:bg-red-800",
+        outline: "border border-border bg-card shadow-sm hover:bg-mint-50 hover:text-forest-700 dark:hover:bg-forest-800 dark:hover:text-mint-100",
+        secondary: "bg-mint-100 text-forest-800 shadow-sm hover:bg-mint-200 dark:bg-forest-800 dark:text-mint-100 dark:hover:bg-forest-700",
+        ghost: "hover:bg-mint-100 hover:text-forest-700 dark:hover:bg-forest-800 dark:hover:text-mint-100",
+        link: "text-forest-600 underline-offset-4 hover:underline",
       },
       size: {
         default: "h-10 px-4 py-2",

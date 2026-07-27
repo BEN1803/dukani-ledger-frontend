@@ -17,7 +17,7 @@ export default function StockPage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Stock</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-forest-600 dark:text-muted-foreground">
             Current inventory levels
           </p>
         </div>
@@ -35,7 +35,7 @@ export default function StockPage() {
                   <div key={s.id} className="flex items-center justify-between rounded-lg bg-red-50 p-3 dark:bg-red-900/20">
                     <div>
                       <p className="text-sm font-medium">{s.productName}</p>
-                      <p className="text-xs text-zinc-500">{s.productCode}</p>
+                      <p className="text-xs text-forest-600">{s.productCode}</p>
                     </div>
                     <Badge variant="destructive">{s.quantityAvailable}</Badge>
                   </div>

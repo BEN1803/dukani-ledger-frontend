@@ -1,18 +1,19 @@
 "use client"
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   DollarSign,
   Package,
+  Users,
   TrendingUp,
-  AlertTriangle,
+  ArrowRight,
 } from "lucide-react";
 import {
   AreaChart,
   Area,
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -21,79 +22,104 @@ import {
 } from "recharts";
 import { useProducts } from "@/hooks/use-products";
 import { useStock } from "@/hooks/use-stock";
-import { useDailyProfitHistory, useMonthlyProfitHistory, useProductProfits, useDailyProfit } from "@/hooks/use-profits";
+import { useWorkers } from "@/hooks/use-workers";
+import {
+  useDailyProfitHistory,
+  useProductProfits,
+  useMonthlyProfit,
+} from "@/hooks/use-profits";
 import { useSales } from "@/hooks/use-sales";
 import { format } from "date-fns";
+import Link from "next/link";
 
 export default function DashboardPage() {
   const { data: products, isLoading: productsLoading } = useProducts();
   const { data: stockData, isLoading: stockLoading } = useStock();
+  const { data: workers, isLoading: workersLoading } = useWorkers();
   const { data: dailyHistory } = useDailyProfitHistory();
-  const { data: monthlyHistory } = useMonthlyProfitHistory();
   const { data: profitByProduct } = useProductProfits();
-  const { data: todayProfit } = useDailyProfit(format(new Date(), "yyyy-MM-dd"));
+  const { data: monthlyProfit } = useMonthlyProfit(
+    new Date().getFullYear(),
+    new Date().getMonth() + 1
+  );
   const { data: recentSales } = useSales(0, 5);
 
   const totalProducts = products?.length || 0;
-  const lowStockItems = stockData?.filter((s) => s.quantityAvailable <= 5) || [];
   const totalStock = stockData?.reduce((sum, s) => sum + s.quantityAvailable, 0) || 0;
+  const activeWorkers = workers?.filter((w) => w.status === "ACTIVE").length || 0;
+  const inactiveWorkers = workers?.filter((w) => w.status === "INACTIVE").length || 0;
+  const totalWorkers = workers?.length || 0;
 
   const statCards = [
     {
-      title: "Today's Profit",
-      value: todayProfit?.totalProfit
-        ? `KSh ${todayProfit.totalProfit.toLocaleString()}`
-        : "KSh 0",
+      title: "Total Sales",
+      value: recentSales?.totalElements
+        ? `TSh ${recentSales.content.reduce((s, r) => s + r.totalPrice, 0).toLocaleString()}`
+        : "TSh 0",
       icon: DollarSign,
-      color: "text-emerald-600",
-      bg: "bg-emerald-50 dark:bg-emerald-900/20",
+      variant: "dark" as const,
     },
     {
-      title: "Total Products",
-      value: totalProducts,
+      title: "Available Stock",
+      value: totalStock.toLocaleString(),
       icon: Package,
-      color: "text-blue-600",
-      bg: "bg-blue-50 dark:bg-blue-900/20",
+      variant: "mint" as const,
     },
     {
-      title: "Total Stock",
-      value: totalStock,
+      title: "Active Workers",
+      value: activeWorkers,
+      subtitle: `${totalWorkers} total`,
+      icon: Users,
+      variant: "white" as const,
+    },
+    {
+      title: "Monthly Profit",
+      value: monthlyProfit?.totalProfit
+        ? `TSh ${monthlyProfit.totalProfit.toLocaleString()}`
+        : "TSh 0",
       icon: TrendingUp,
-      color: "text-violet-600",
-      bg: "bg-violet-50 dark:bg-violet-900/20",
-    },
-    {
-      title: "Low Stock Items",
-      value: lowStockItems.length,
-      icon: AlertTriangle,
-      color: "text-red-600",
-      bg: "bg-red-50 dark:bg-red-900/20",
+      variant: "dark" as const,
     },
   ];
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Overview of your business
-          </p>
-        </div>
-
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {statCards.map((stat) => {
             const Icon = stat.icon;
+            const isDark = stat.variant === "dark";
+            const isMint = stat.variant === "mint";
             return (
-              <Card key={stat.title}>
+              <Card
+                key={stat.title}
+                className={
+                  isDark
+                    ? "border-0 bg-forest-600 text-white shadow-md"
+                    : isMint
+                    ? "border-0 bg-mint-100 text-forest-800 shadow-sm"
+                    : "border-0 bg-white text-foreground shadow-sm"
+                }
+              >
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400">{stat.title}</p>
-                      <p className="text-2xl font-bold mt-1">{stat.value}</p>
+                    <div className="space-y-1">
+                      <p className={isDark ? "text-forest-100 text-sm" : "text-muted-foreground text-sm"}>{stat.title}</p>
+                      <p className="text-2xl font-bold">{stat.value}</p>
+                      {stat.subtitle && (
+                        <p className={isDark ? "text-forest-200 text-xs" : "text-muted-foreground text-xs"}>{stat.subtitle}</p>
+                      )}
                     </div>
-                    <div className={`rounded-xl p-3 ${stat.bg}`}>
-                      <Icon className={`h-5 w-5 ${stat.color}`} />
+                    <div
+                      className={
+                        isDark
+                          ? "rounded-xl bg-forest-700/50 p-3"
+                          : isMint
+                          ? "rounded-xl bg-white/60 p-3"
+                          : "rounded-xl bg-mint-100 p-3"
+                      }
+                    >
+                      <Icon className={isDark ? "h-5 w-5 text-mint-300" : "h-5 w-5 text-forest-600"} />
                     </div>
                   </div>
                 </CardContent>
@@ -102,10 +128,10 @@ export default function DashboardPage() {
           })}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Daily Profit Trend</CardTitle>
+              <CardTitle>Sales Trend</CardTitle>
             </CardHeader>
             <CardContent>
               {dailyHistory ? (
@@ -114,31 +140,31 @@ export default function DashboardPage() {
                     <AreaChart data={dailyHistory}>
                       <defs>
                         <linearGradient id="profitGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#059669" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="#059669" stopOpacity={0} />
+                          <stop offset="5%" stopColor="#0a5c36" stopOpacity={0.25} />
+                          <stop offset="95%" stopColor="#0a5c36" stopOpacity={0} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#d4e0d4" />
                       <XAxis
                         dataKey="date"
-                        tickFormatter={(d) => format(new Date(d), "MMM d")}
-                        tick={{ fontSize: 12 }}
-                        stroke="#a1a1aa"
+                        tickFormatter={(d) => format(new Date(d), "EEE")}
+                        tick={{ fontSize: 12, fill: "#5c6b60" }}
+                        axisLine={{ stroke: "#d4e0d4" }}
                       />
-                      <YAxis tick={{ fontSize: 12 }} stroke="#a1a1aa" />
+                      <YAxis tick={{ fontSize: 12, fill: "#5c6b60" }} axisLine={{ stroke: "#d4e0d4" }} />
                       <Tooltip
                         contentStyle={{
                           borderRadius: "12px",
-                          border: "1px solid #e5e5e5",
+                          border: "1px solid #d4e0d4",
                           boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                         }}
-                        labelFormatter={(d) => format(new Date(d), "MMM d, yyyy")}
-                        formatter={(value: number) => [`KSh ${value.toLocaleString()}`, "Profit"]}
+                        labelFormatter={(d) => format(new Date(d as string), "MMM d, yyyy")}
+                        formatter={(value) => [`TSh ${Number(value).toLocaleString()}`, "Profit"]}
                       />
                       <Area
                         type="monotone"
                         dataKey="totalProfit"
-                        stroke="#059669"
+                        stroke="#0a5c36"
                         strokeWidth={2}
                         fill="url(#profitGradient)"
                       />
@@ -153,38 +179,38 @@ export default function DashboardPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Monthly Profit</CardTitle>
+              <CardTitle>Top Selling Products</CardTitle>
             </CardHeader>
             <CardContent>
-              {monthlyHistory ? (
-                <div className="h-72">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={monthlyHistory}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
-                      <XAxis
-                        dataKey="month"
-                        tickFormatter={(m) => {
-                          const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-                          return months[m - 1];
-                        }}
-                        tick={{ fontSize: 12 }}
-                        stroke="#a1a1aa"
-                      />
-                      <YAxis tick={{ fontSize: 12 }} stroke="#a1a1aa" />
-                      <Tooltip
-                        contentStyle={{
-                          borderRadius: "12px",
-                          border: "1px solid #e5e5e5",
-                          boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-                        }}
-                        formatter={(value: number) => [`KSh ${value.toLocaleString()}`, "Profit"]}
-                      />
-                      <Bar dataKey="totalProfit" fill="#059669" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+              {profitByProduct ? (
+                <div className="space-y-1">
+                  {profitByProduct.slice(0, 6).map((p, i) => (
+                    <div
+                      key={p.productId}
+                      className="flex items-center justify-between py-2.5 border-b border-border last:border-0"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-medium text-muted-foreground w-5">{i + 1}</span>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{p.productName}</p>
+                          <p className="text-xs text-muted-foreground">{p.quantitySold} sold</p>
+                        </div>
+                      </div>
+                      <p className="text-sm font-semibold text-forest-600">
+                        TSh {p.totalProfit.toLocaleString()}
+                      </p>
+                    </div>
+                  ))}
+                  {profitByProduct.length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-8">No sales data yet</p>
+                  )}
                 </div>
               ) : (
-                <Skeleton className="h-72 w-full" />
+                <div className="space-y-3">
+                  {[...Array(6)].map((_, i) => (
+                    <Skeleton key={i} className="h-10 w-full" />
+                  ))}
+                </div>
               )}
             </CardContent>
           </Card>
@@ -193,36 +219,37 @@ export default function DashboardPage() {
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Top Selling Products</CardTitle>
+              <CardTitle>Recent Transactions</CardTitle>
             </CardHeader>
             <CardContent>
-              {profitByProduct ? (
-                <div className="space-y-3">
-                  {profitByProduct.slice(0, 5).map((p) => (
+              {recentSales ? (
+                <div className="space-y-1">
+                  {recentSales.content.map((sale) => (
                     <div
-                      key={p.productId}
-                      className="flex items-center justify-between rounded-lg border border-zinc-100 p-3 dark:border-zinc-800"
+                      key={sale.id}
+                      className="flex items-center justify-between py-2.5 border-b border-border last:border-0"
                     >
                       <div>
-                        <p className="text-sm font-medium">{p.productName}</p>
-                        <p className="text-xs text-zinc-500">{p.quantitySold} sold</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-semibold text-emerald-600">
-                          KSh {p.totalProfit.toLocaleString()}
+                        <p className="text-sm font-medium text-foreground">
+                          #{sale.id.toString().padStart(4, "0")} &middot; {sale.productName}
                         </p>
-                        <p className="text-xs text-zinc-500">profit</p>
+                        <p className="text-xs text-muted-foreground">
+                          {format(new Date(sale.soldAt), "MMM d, HH:mm")} &middot; {sale.soldByName}
+                        </p>
                       </div>
+                      <p className="text-sm font-semibold text-foreground">
+                        TSh {sale.totalPrice.toLocaleString()}
+                      </p>
                     </div>
                   ))}
-                  {profitByProduct.length === 0 && (
-                    <p className="text-sm text-zinc-500 text-center py-8">No sales data yet</p>
+                  {recentSales.content.length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-8">No sales yet</p>
                   )}
                 </div>
               ) : (
                 <div className="space-y-3">
                   {[...Array(5)].map((_, i) => (
-                    <Skeleton key={i} className="h-14 w-full" />
+                    <Skeleton key={i} className="h-12 w-full" />
                   ))}
                 </div>
               )}
@@ -231,33 +258,44 @@ export default function DashboardPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Recent Sales</CardTitle>
+              <CardTitle>Worker Attendance</CardTitle>
             </CardHeader>
             <CardContent>
-              {recentSales ? (
+              {workers ? (
                 <div className="space-y-3">
-                  {recentSales.content.map((sale) => (
+                  {workers.slice(0, 5).map((worker) => (
                     <div
-                      key={sale.id}
-                      className="flex items-center justify-between rounded-lg border border-zinc-100 p-3 dark:border-zinc-800"
+                      key={worker.id}
+                      className="flex items-center justify-between py-2.5 border-b border-border last:border-0"
                     >
-                      <div>
-                        <p className="text-sm font-medium">{sale.productName}</p>
-                        <p className="text-xs text-zinc-500">
-                          {format(new Date(sale.soldAt), "MMM d, HH:mm")} &middot; {sale.soldByName}
-                        </p>
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-mint-100 flex items-center justify-center text-xs font-semibold text-forest-700">
+                          {worker.fullname.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{worker.fullname}</p>
+                          <p className="text-xs text-muted-foreground">{worker.email}</p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm font-semibold">
-                          KSh {sale.totalPrice.toLocaleString()}
-                        </p>
-                        <p className="text-xs text-zinc-500">x{sale.quantity}</p>
-                      </div>
+                      <Badge
+                        variant={
+                          worker.status === "ACTIVE"
+                            ? "success"
+                            : worker.status === "INACTIVE"
+                            ? "warning"
+                            : "destructive"
+                        }
+                      >
+                        {worker.status}
+                      </Badge>
                     </div>
                   ))}
-                  {recentSales.content.length === 0 && (
-                    <p className="text-sm text-zinc-500 text-center py-8">No sales yet</p>
-                  )}
+                  <Link href="/workers">
+                    <Button variant="outline" className="w-full mt-2">
+                      Manage Workers
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
                 </div>
               ) : (
                 <div className="space-y-3">

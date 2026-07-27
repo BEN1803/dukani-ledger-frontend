@@ -1,6 +1,26 @@
 export type Role = "OWNER" | "WORKER" | "ADMIN";
 export type Gender = "MALE" | "FEMALE";
-export type WorkerStatus = "ACTIVE" | "ABSENT" | "ON_HOLIDAY" | "FIRED";
+export type WorkerStatus = "ACTIVE" | "INACTIVE" | "FIRED";
+
+export interface WorkerResponse {
+  id: number;
+  fullname: string;
+  email: string;
+  phone: string;
+  address: string;
+  gender: Gender;
+  status: WorkerStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpdateWorkerRequest {
+  fullname?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  gender?: Gender;
+}
 
 export interface LoginRequest {
   email: string;

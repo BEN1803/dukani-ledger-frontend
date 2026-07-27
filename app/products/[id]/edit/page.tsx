@@ -67,7 +67,7 @@ export default function EditProductPage() {
           </Button>
           <div>
             <h1 className="text-2xl font-bold">Edit Product</h1>
-            <p className="text-sm text-zinc-500">{product.name}</p>
+            <p className="text-sm text-forest-600">{product.name}</p>
           </div>
         </div>
 
@@ -78,7 +78,7 @@ export default function EditProductPage() {
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="sellingPrice">Selling Price (KSh)</Label>
+                <Label htmlFor="sellingPrice">Selling Price (TSh)</Label>
                 <Input
                   id="sellingPrice"
                   type="number"

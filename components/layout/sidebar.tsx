@@ -14,6 +14,7 @@ import {
   UserCircle,
   ChevronLeft,
   Store,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth-store";
@@ -45,6 +46,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const role = useAuthStore((s) => s.role);
   const { open, toggle, mobileOpen, setMobileOpen } = useSidebarStore();
+  const logout = useAuthStore((s) => s.logout);
 
   const visibleItems = navItems.filter(
     (item) => role && item.roles.includes(role)
@@ -61,28 +63,28 @@ export function Sidebar() {
 
       <aside
         className={cn(
-          "fixed top-0 left-0 z-50 flex h-screen flex-col border-r border-zinc-200 bg-white transition-all duration-300 dark:border-zinc-800 dark:bg-zinc-950 lg:static lg:z-auto",
+          "fixed top-0 left-0 z-50 flex h-screen flex-col bg-sidebar text-sidebar-foreground transition-all duration-300 lg:static lg:z-auto",
           open ? "w-64" : "w-16",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
         <div
           className={cn(
-            "flex h-16 items-center border-b border-zinc-200 px-4 dark:border-zinc-800",
-            open ? "justify-between" : "justify-center"
-          )}
-        >
-          {open && (
-            <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-emerald-600">
+          "flex h-16 items-center border-b border-forest-700 px-4",
+          open ? "justify-between" : "justify-center"
+        )}
+      >
+        {open && (
+          <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
               <Store className="h-6 w-6" />
-              <span>Dukani</span>
+              <span>Dukani Ledger</span>
             </Link>
           )}
           <Button
             variant="ghost"
             size="icon"
             onClick={toggle}
-            className="hidden lg:flex"
+            className="hidden lg:flex text-sidebar-foreground hover:bg-forest-700"
           >
             <ChevronLeft
               className={cn(
@@ -105,8 +107,8 @@ export function Sidebar() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
-                    : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-50",
+                    ? "bg-forest-700 text-white"
+                    : "text-forest-100 hover:bg-forest-700/50 hover:text-white",
                   !open && "justify-center px-2"
                 )}
                 title={!open ? item.label : undefined}
@@ -117,6 +119,20 @@ export function Sidebar() {
             );
           })}
         </nav>
+
+        <div className="border-t border-forest-700 p-3">
+          <button
+            onClick={() => { logout(); window.location.href = "/login"; }}
+            className={cn(
+              "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-forest-100 transition-colors hover:bg-forest-700 hover:text-white",
+              !open && "justify-center px-2"
+            )}
+            title={!open ? "Logout" : undefined}
+          >
+            <LogOut className="h-5 w-5 shrink-0" />
+            {open && <span>Logout</span>}
+          </button>
+        </div>
       </aside>
     </>
   );

@@ -64,7 +64,7 @@ export default function NewSalePage() {
           </Button>
           <div>
             <h1 className="text-2xl font-bold">New Sale</h1>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">Record a product sale</p>
+            <p className="text-sm text-forest-600 dark:text-muted-foreground">Record a product sale</p>
           </div>
         </div>
 
@@ -102,7 +102,7 @@ export default function NewSalePage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="sellingPrice">Selling Price (KSh)</Label>
+                  <Label htmlFor="sellingPrice">Selling Price (TSh)</Label>
                   <Input
                     id="sellingPrice"
                     type="number"
@@ -127,9 +127,9 @@ export default function NewSalePage() {
               </div>
 
               {watch("sellingPrice") && watch("quantity") && (
-                <div className="rounded-lg bg-emerald-50 p-4 text-center dark:bg-emerald-900/20">
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400">Total</p>
-                  <p className="text-2xl font-bold text-emerald-600">KSh {totalPrice}</p>
+                <div className="rounded-lg bg-mint-50 p-4 text-center dark:bg-forest-900/20">
+                  <p className="text-sm text-forest-600 dark:text-muted-foreground">Total</p>
+                  <p className="text-2xl font-bold text-forest-600">TSh {totalPrice}</p>
                 </div>
               )}
 

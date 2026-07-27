@@ -50,11 +50,11 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-50 p-4 dark:bg-zinc-900">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 dark:bg-forest-950">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900">
-            <Store className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-mint-100 dark:bg-forest-900">
+            <Store className="h-6 w-6 text-forest-600 dark:text-mint-400" />
           </div>
           <CardTitle className="text-2xl">Create account</CardTitle>
           <CardDescription>Register for a Dukani account</CardDescription>
@@ -111,7 +111,7 @@ export default function RegisterPage() {
           </form>
           <div className="mt-6 text-center text-sm text-zinc-500">
             Already have an account?{" "}
-            <Link href="/login" className="text-emerald-600 hover:underline font-medium">
+            <Link href="/login" className="text-forest-600 hover:underline font-medium">
               Sign in
             </Link>
           </div>

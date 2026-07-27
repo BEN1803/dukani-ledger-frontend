@@ -16,14 +16,14 @@ export default function ProfilePage() {
       <div className="mx-auto max-w-2xl space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Profile</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">Your account details</p>
+          <p className="text-sm text-forest-600 dark:text-muted-foreground">Your account details</p>
         </div>
 
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
-                <AvatarFallback className="bg-emerald-100 text-emerald-700 text-xl dark:bg-emerald-900 dark:text-emerald-300">
+                <AvatarFallback className="bg-mint-100 text-forest-700 text-xl dark:bg-forest-900 dark:text-muted-foreground">
                   {initials}
                 </AvatarFallback>
               </Avatar>

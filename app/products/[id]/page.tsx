@@ -57,7 +57,7 @@ export default function ProductDetailPage() {
           </Button>
           <div>
             <h1 className="text-2xl font-bold">{product.name}</h1>
-            <p className="text-sm text-zinc-500">{product.productId}</p>
+            <p className="text-sm text-forest-600">{product.productId}</p>
           </div>
         </div>
 
@@ -74,13 +74,13 @@ export default function ProductDetailPage() {
               <div className="flex justify-between">
                 <span className="text-sm text-zinc-500">Cost Price</span>
                 <span className="text-sm font-medium">
-                  {product.costPrice ? `KSh ${product.costPrice.toLocaleString()}` : "—"}
+                  {product.costPrice ? `TSh ${product.costPrice.toLocaleString()}` : "—"}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-zinc-500">Selling Price</span>
                 <span className="text-sm font-medium">
-                  {product.sellingPrice ? `KSh ${product.sellingPrice.toLocaleString()}` : "—"}
+                  {product.sellingPrice ? `TSh ${product.sellingPrice.toLocaleString()}` : "—"}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -112,13 +112,13 @@ export default function ProductDetailPage() {
                     >
                       <div>
                         <p className="text-sm font-medium">x{sale.quantity}</p>
-                        <p className="text-xs text-zinc-500">
+                        <p className="text-xs text-forest-600">
                           {format(new Date(sale.soldAt), "MMM d, HH:mm")}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-semibold">KSh {sale.totalPrice.toLocaleString()}</p>
-                        <p className="text-xs text-zinc-500">{sale.soldByName}</p>
+                        <p className="text-sm font-semibold">TSh {sale.totalPrice.toLocaleString()}</p>
+                        <p className="text-xs text-forest-600">{sale.soldByName}</p>
                       </div>
                     </div>
                   ))}

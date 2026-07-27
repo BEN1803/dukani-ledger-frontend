@@ -30,6 +30,11 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <body className="min-h-screen bg-background text-foreground antialiased">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `!function(){try{var e=localStorage.getItem("theme");"dark"===e?document.documentElement.classList.add("dark"):document.documentElement.classList.remove("dark")}catch(e){}}();`,
+          }}
+        />
         <Providers>{children}</Providers>
       </body>
     </html>

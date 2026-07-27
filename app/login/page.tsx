@@ -35,11 +35,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-50 p-4 dark:bg-zinc-900">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 dark:bg-forest-950">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900">
-            <Store className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-mint-100 dark:bg-forest-900">
+            <Store className="h-6 w-6 text-forest-600 dark:text-mint-400" />
           </div>
           <CardTitle className="text-2xl">Welcome back</CardTitle>
           <CardDescription>Sign in to your Dukani account</CardDescription>
@@ -90,13 +90,13 @@ export default function LoginPage() {
           <div className="mt-6 text-center text-sm text-zinc-500">
             <p>
               Don&apos;t have an account?{" "}
-              <Link href="/register" className="text-emerald-600 hover:underline font-medium">
+              <Link href="/register" className="text-forest-600 hover:underline font-medium">
                 Register
               </Link>
             </p>
             <p className="mt-1">
               Register a{" "}
-              <Link href="/register-business" className="text-emerald-600 hover:underline font-medium">
+              <Link href="/register-business" className="text-forest-600 hover:underline font-medium">
                 new business
               </Link>
             </p>

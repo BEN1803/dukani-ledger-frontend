@@ -1,14 +1,22 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #0a0a0a;
+  --background: #f4f7f4;
+  --foreground: #1c2a1f;
   --card: #ffffff;
-  --card-foreground: #0a0a0a;
-  --muted: #f5f5f5;
-  --muted-foreground: #737373;
-  --border: #e5e5e5;
-  --ring: #059669;
+  --card-foreground: #1c2a1f;
+  --muted: #eaf4ec;
+  --muted-foreground: #5c6b60;
+  --border: #d4e0d4;
+  --ring: #0a5c36;
+  --highlight: #0a5c36;
+  --sidebar: #0a5c36;
+  --sidebar-foreground: #ffffff;
+  --sidebar-muted: #1a7a4a;
+  --navbar: #0a5c36;
+  --navbar-foreground: #ffffff;
 }
 
 @theme inline {
@@ -20,29 +28,53 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
   --color-ring: var(--ring);
+  --color-highlight: var(--highlight);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-muted: var(--sidebar-muted);
+  --color-navbar: var(--navbar);
+  --color-navbar-foreground: var(--navbar-foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --color-emerald-50: #ecfdf5;
-  --color-emerald-100: #d1fae5;
-  --color-emerald-200: #a7f3d0;
-  --color-emerald-300: #6ee7b7;
-  --color-emerald-400: #34d399;
-  --color-emerald-500: #10b981;
-  --color-emerald-600: #059669;
-  --color-emerald-700: #047857;
-  --color-emerald-800: #065f46;
-  --color-emerald-900: #064e3b;
+  --color-forest-50: #f0f7f2;
+  --color-forest-100: #dcece0;
+  --color-forest-200: #b8d9c0;
+  --color-forest-300: #8cbf9a;
+  --color-forest-400: #5ca070;
+  --color-forest-500: #2d7a46;
+  --color-forest-600: #0a5c36;
+  --color-forest-700: #004d25;
+  --color-forest-800: #003a1c;
+  --color-forest-900: #002e16;
+  --color-forest-950: #001a0c;
+  --color-mint-50: #f4faf4;
+  --color-mint-100: #eaf4ec;
+  --color-mint-200: #d4e8d8;
+  --color-mint-300: #b0d4b8;
+  --color-mint-400: #82bc8e;
+  --color-mint-500: #5ca070;
+  --color-mint-600: #3d8252;
+  --color-mint-700: #2d663e;
+  --color-mint-800: #255234;
+  --color-mint-900: #1e432b;
+  --color-mint-950: #0f2618;
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #fafafa;
-  --card: #18181b;
-  --card-foreground: #fafafa;
-  --muted: #27272a;
-  --muted-foreground: #a1a1aa;
-  --border: #27272a;
-  --ring: #10b981;
+  --background: #001a0c;
+  --foreground: #eaf4ec;
+  --card: #002e16;
+  --card-foreground: #eaf4ec;
+  --muted: #003a1c;
+  --muted-foreground: #8cbf9a;
+  --border: #004d25;
+  --ring: #5ca070;
+  --highlight: #5ca070;
+  --sidebar: #001a0c;
+  --sidebar-foreground: #eaf4ec;
+  --sidebar-muted: #003a1c;
+  --navbar: #001a0c;
+  --navbar-foreground: #eaf4ec;
 }
 
 html {
