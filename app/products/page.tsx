@@ -69,7 +69,6 @@ export default function ProductsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-mint-100 dark:bg-forest-800">
-                      <th className="text-left py-3.5 px-4 font-semibold text-forest-800 dark:text-mint-100">Code</th>
                       <th className="text-left py-3.5 px-4 font-semibold text-forest-800 dark:text-mint-100">Name</th>
                       <th className="text-left py-3.5 px-4 font-semibold text-forest-800 dark:text-mint-100">Category</th>
                       <th className="text-right py-3.5 px-4 font-semibold text-forest-800 dark:text-mint-100">Cost Price</th>
@@ -86,7 +85,6 @@ export default function ProductsPage() {
                           key={product.id}
                           className="border-b border-border hover:bg-mint-50/50 transition-colors"
                         >
-                          <td className="py-3.5 px-4 font-mono text-xs text-muted-foreground">{product.productId}</td>
                           <td className="py-3.5 px-4 font-medium">
                             <Link
                               href={`/products/${product.id}`}
