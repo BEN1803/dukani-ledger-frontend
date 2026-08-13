@@ -2,8 +2,8 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { RoleGuard } from "@/components/layout/role-guard";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { MetricCard } from "@/components/ui/metric-card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -27,8 +27,7 @@ import {
   useMonthlyProfitHistory,
 } from "@/hooks/use-profits";
 import { format } from "date-fns";
-import { BarChart3, TrendingUp } from "lucide-react";
-import Link from "next/link";
+import { BarChart3, TrendingUp, Wallet, IndianRupee, CalendarRange } from "lucide-react";
 
 const PIE_COLORS = ["#0a5c36", "#2d7a46", "#5ca070", "#8cbf9a", "#b8d9c0", "#004d25", "#003a1c", "#1e432b"];
 
@@ -37,14 +36,13 @@ export default function ReportsPage() {
   const [year, setYear] = useState(String(new Date().getFullYear()));
   const [month, setMonth] = useState(String(new Date().getMonth() + 1));
 
-  const { data: dailyProfit, isLoading: dailyLoading } = useDailyProfit(date);
-  const { data: monthlyProfit, isLoading: monthlyLoading } = useMonthlyProfit(Number(year), Number(month));
+  const { data: dailyProfit } = useDailyProfit(date);
+  const { data: monthlyProfit } = useMonthlyProfit(Number(year), Number(month));
   const { data: productProfits, isLoading: productLoading } = useProductProfits();
   const { data: monthlyHistory } = useMonthlyProfitHistory();
 
   const totalRevenue = (productProfits || []).reduce((s, p) => s + p.totalRevenue, 0);
   const totalCost = (productProfits || []).reduce((s, p) => s + p.totalCost, 0);
-  const totalProfit = (productProfits || []).reduce((s, p) => s + p.totalProfit, 0);
 
   const expenseData = [
     { name: "Stock Purchases", value: totalCost * 0.6 },
@@ -56,49 +54,80 @@ export default function ReportsPage() {
   return (
     <DashboardLayout>
       <RoleGuard allowedRoles={["OWNER", "ADMIN"]}>
-        <div className="space-y-6">
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Card className="border-0 bg-forest-600 text-white shadow-md">
-              <CardContent className="p-6">
-                <div className="space-y-1">
-                  <p className="text-forest-100 text-sm">Daily Profit</p>
-                  <p className="text-2xl font-bold">
-                    TSh {(dailyProfit?.totalProfit || 0).toLocaleString()}
-                  </p>
-                  <p className="text-forest-200 text-xs">{format(new Date(date), "MMM d, yyyy")}</p>
+        <div className="flex-1 space-y-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1">
+              <h1 className="text-2xl font-bold tracking-tight">Reports</h1>
+              <p className="text-sm text-muted-foreground">
+                Profit and performance analysis across your shop.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-end gap-2">
+              <div className="space-y-1">
+                <Label htmlFor="report-date" className="text-xs text-muted-foreground">
+                  Day
+                </Label>
+                <Input
+                  id="report-date"
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="h-9 w-40"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="report-month" className="text-xs text-muted-foreground">
+                  Month
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="report-month"
+                    type="number"
+                    min={1}
+                    max={12}
+                    value={month}
+                    onChange={(e) => setMonth(e.target.value)}
+                    className="h-9 w-20"
+                  />
+                  <Input
+                    type="number"
+                    min={2000}
+                    max={2100}
+                    value={year}
+                    onChange={(e) => setYear(e.target.value)}
+                    className="h-9 w-24"
+                  />
                 </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6">
-                <div className="space-y-1">
-                  <p className="text-muted-foreground text-sm">Monthly Profit</p>
-                  <p className="text-2xl font-bold text-foreground">
-                    TSh {(monthlyProfit?.totalProfit || 0).toLocaleString()}
-                  </p>
-                  <p className="text-muted-foreground text-xs">
-                    {format(new Date(Number(year), Number(month) - 1), "MMMM yyyy")}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6">
-                <div className="space-y-1">
-                  <p className="text-muted-foreground text-sm">Total Revenue</p>
-                  <p className="text-2xl font-bold text-foreground">
-                    TSh {totalRevenue.toLocaleString()}
-                  </p>
-                  <p className="text-muted-foreground text-xs">Across all products</p>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <MetricCard
+              title="Daily Profit"
+              value={`TSh ${(dailyProfit?.totalProfit || 0).toLocaleString()}`}
+              icon={Wallet}
+              subtitle={format(new Date(date), "MMM d, yyyy")}
+            />
+            <MetricCard
+              title="Monthly Profit"
+              value={`TSh ${(monthlyProfit?.totalProfit || 0).toLocaleString()}`}
+              icon={CalendarRange}
+              subtitle={format(new Date(Number(year), Number(month) - 1), "MMMM yyyy")}
+            />
+            <MetricCard
+              title="Total Revenue"
+              value={`TSh ${totalRevenue.toLocaleString()}`}
+              icon={IndianRupee}
+              subtitle="Across all products"
+            />
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle>Monthly Profit Trend</CardTitle>
+                <CardDescription>Profit earned month by month</CardDescription>
               </CardHeader>
               <CardContent>
                 {monthlyHistory ? (
@@ -137,6 +166,7 @@ export default function ReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Expense Distribution</CardTitle>
+                <CardDescription>How costs break down</CardDescription>
               </CardHeader>
               <CardContent>
                 {totalCost > 0 ? (
@@ -183,6 +213,7 @@ export default function ReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Performance Breakdown</CardTitle>
+              <CardDescription>Revenue, cost and margin per product</CardDescription>
             </CardHeader>
             <CardContent>
               {productLoading ? (
@@ -193,13 +224,13 @@ export default function ReportsPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-mint-100 dark:bg-forest-800">
-                        <th className="text-left py-3.5 px-4 font-semibold text-forest-800 dark:text-mint-100">Product</th>
-                        <th className="text-right py-3.5 px-4 font-semibold text-forest-800 dark:text-mint-100">Sold</th>
-                        <th className="text-right py-3.5 px-4 font-semibold text-forest-800 dark:text-mint-100">Revenue</th>
-                        <th className="text-right py-3.5 px-4 font-semibold text-forest-800 dark:text-mint-100">Cost</th>
-                        <th className="text-right py-3.5 px-4 font-semibold text-forest-800 dark:text-mint-100">Profit</th>
-                        <th className="text-right py-3.5 px-4 font-semibold text-forest-800 dark:text-mint-100">Margin</th>
+                      <tr className="bg-muted/50">
+                        <th className="text-left py-3.5 px-4 font-medium text-muted-foreground">Product</th>
+                        <th className="text-right py-3.5 px-4 font-medium text-muted-foreground">Sold</th>
+                        <th className="text-right py-3.5 px-4 font-medium text-muted-foreground">Revenue</th>
+                        <th className="text-right py-3.5 px-4 font-medium text-muted-foreground">Cost</th>
+                        <th className="text-right py-3.5 px-4 font-medium text-muted-foreground">Profit</th>
+                        <th className="text-right py-3.5 px-4 font-medium text-muted-foreground">Margin</th>
                       </tr>
                     </thead>
                     <tbody>

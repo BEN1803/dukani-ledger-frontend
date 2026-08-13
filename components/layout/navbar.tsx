@@ -49,13 +49,19 @@ export function Navbar() {
   const [clock, setClock] = useState("");
 
   useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
+
     const update = () => {
       const now = new Date();
       setClock(now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true }));
+      const nextMinute = new Date(now);
+      nextMinute.setSeconds(0, 0);
+      nextMinute.setMinutes(nextMinute.getMinutes() + 1);
+      timeout = setTimeout(update, nextMinute.getTime() - now.getTime() + 100);
     };
+
     update();
-    const interval = setInterval(update, 60000);
-    return () => clearInterval(interval);
+    return () => clearTimeout(timeout);
   }, []);
 
   const initials = email?.charAt(0).toUpperCase() || "U";

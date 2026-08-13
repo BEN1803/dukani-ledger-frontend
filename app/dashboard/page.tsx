@@ -1,6 +1,7 @@
 "use client"
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { MetricCard } from "@/components/ui/metric-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,6 +11,7 @@ import {
   Users,
   TrendingUp,
   ArrowRight,
+  Plus,
 } from "lucide-react";
 import {
   AreaChart,
@@ -27,50 +29,65 @@ import {
   useDailyProfitHistory,
   useProductProfits,
   useMonthlyProfit,
+  useMonthlyProfitHistory,
 } from "@/hooks/use-profits";
 import { useSales } from "@/hooks/use-sales";
 import { format } from "date-fns";
 import Link from "next/link";
 
 export default function DashboardPage() {
-  const { data: products, isLoading: productsLoading } = useProducts();
-  const { data: stockData, isLoading: stockLoading } = useStock();
-  const { data: workers, isLoading: workersLoading } = useWorkers();
+  const now = new Date();
+  const nowYear = now.getFullYear();
+  const nowMonth = now.getMonth() + 1;
+
+  const { data: products } = useProducts();
+  const { data: stockData } = useStock();
+  const { data: workers } = useWorkers();
   const { data: dailyHistory } = useDailyProfitHistory();
   const { data: profitByProduct } = useProductProfits();
-  const { data: monthlyProfit } = useMonthlyProfit(
-    new Date().getFullYear(),
-    new Date().getMonth() + 1
-  );
+  const { data: monthlyProfit } = useMonthlyProfit(nowYear, nowMonth);
+  const { data: monthlyHistory } = useMonthlyProfitHistory();
   const { data: recentSales } = useSales(0, 5);
 
+  const totalRevenue =
+    profitByProduct?.reduce((sum, p) => sum + p.totalRevenue, 0) || 0;
   const totalProducts = products?.length || 0;
-  const totalStock = stockData?.reduce((sum, s) => sum + s.quantityAvailable, 0) || 0;
-  const activeWorkers = workers?.filter((w) => w.status === "ACTIVE").length || 0;
-  const inactiveWorkers = workers?.filter((w) => w.status === "INACTIVE").length || 0;
+  const totalStock =
+    stockData?.reduce((sum, s) => sum + s.quantityAvailable, 0) || 0;
+  const activeWorkers =
+    workers?.filter((w) => w.status === "ACTIVE").length || 0;
   const totalWorkers = workers?.length || 0;
 
-  const statCards = [
+  const prevMonth = nowMonth === 1 ? 12 : nowMonth - 1;
+  const prevYear = nowMonth === 1 ? nowYear - 1 : nowYear;
+  const prevProfit = monthlyHistory?.find(
+    (h) => h.year === prevYear && h.month === prevMonth
+  )?.totalProfit;
+  const profitChange =
+    prevProfit != null &&
+    prevProfit > 0 &&
+    monthlyProfit?.totalProfit != null
+      ? ((monthlyProfit.totalProfit - prevProfit) / prevProfit) * 100
+      : null;
+
+  const metrics = [
     {
-      title: "Total Sales",
-      value: recentSales?.totalElements
-        ? `TSh ${recentSales.content.reduce((s, r) => s + r.totalPrice, 0).toLocaleString()}`
-        : "TSh 0",
+      title: "Total Revenue",
+      value: `TSh ${totalRevenue.toLocaleString()}`,
       icon: DollarSign,
-      variant: "dark" as const,
+      subtitle: `Across ${totalProducts} products`,
     },
     {
       title: "Available Stock",
       value: totalStock.toLocaleString(),
       icon: Package,
-      variant: "mint" as const,
+      subtitle: "units in inventory",
     },
     {
       title: "Active Workers",
-      value: activeWorkers,
-      subtitle: `${totalWorkers} total`,
+      value: activeWorkers.toLocaleString(),
       icon: Users,
-      variant: "white" as const,
+      subtitle: `of ${totalWorkers} total workers`,
     },
     {
       title: "Monthly Profit",
@@ -78,60 +95,45 @@ export default function DashboardPage() {
         ? `TSh ${monthlyProfit.totalProfit.toLocaleString()}`
         : "TSh 0",
       icon: TrendingUp,
-      variant: "dark" as const,
+      change: profitChange,
     },
   ];
 
+  const maxProfit = Math.max(
+    0,
+    ...(profitByProduct ?? []).map((p) => p.totalProfit)
+  );
+  const topProducts = (profitByProduct ?? []).slice(0, 5);
+
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {statCards.map((stat) => {
-            const Icon = stat.icon;
-            const isDark = stat.variant === "dark";
-            const isMint = stat.variant === "mint";
-            return (
-              <Card
-                key={stat.title}
-                className={
-                  isDark
-                    ? "border-0 bg-forest-600 text-white shadow-md"
-                    : isMint
-                    ? "border-0 bg-mint-100 text-forest-800 shadow-sm"
-                    : "border-0 bg-white text-foreground shadow-sm"
-                }
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <p className={isDark ? "text-forest-100 text-sm" : "text-muted-foreground text-sm"}>{stat.title}</p>
-                      <p className="text-2xl font-bold">{stat.value}</p>
-                      {stat.subtitle && (
-                        <p className={isDark ? "text-forest-200 text-xs" : "text-muted-foreground text-xs"}>{stat.subtitle}</p>
-                      )}
-                    </div>
-                    <div
-                      className={
-                        isDark
-                          ? "rounded-xl bg-forest-700/50 p-3"
-                          : isMint
-                          ? "rounded-xl bg-white/60 p-3"
-                          : "rounded-xl bg-mint-100 p-3"
-                      }
-                    >
-                      <Icon className={isDark ? "h-5 w-5 text-mint-300" : "h-5 w-5 text-forest-600"} />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+      <div className="flex-1 space-y-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-bold tracking-tight">Overview</h1>
+            <p className="text-sm text-muted-foreground">
+              A snapshot of your shop&apos;s performance.
+            </p>
+          </div>
+          <Button asChild>
+            <Link href="/sales/new">
+              <Plus className="h-4 w-4" />
+              New Sale
+            </Link>
+          </Button>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {metrics.map((metric) => (
+            <MetricCard key={metric.title} {...metric} />
+          ))}
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
           <Card>
             <CardHeader>
               <CardTitle>Sales Trend</CardTitle>
+              <CardDescription>Daily profit over time</CardDescription>
             </CardHeader>
             <CardContent>
               {dailyHistory ? (
@@ -151,7 +153,10 @@ export default function DashboardPage() {
                         tick={{ fontSize: 12, fill: "#5c6b60" }}
                         axisLine={{ stroke: "#d4e0d4" }}
                       />
-                      <YAxis tick={{ fontSize: 12, fill: "#5c6b60" }} axisLine={{ stroke: "#d4e0d4" }} />
+                      <YAxis
+                        tick={{ fontSize: 12, fill: "#5c6b60" }}
+                        axisLine={{ stroke: "#d4e0d4" }}
+                      />
                       <Tooltip
                         contentStyle={{
                           borderRadius: "12px",
@@ -180,34 +185,45 @@ export default function DashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle>Top Selling Products</CardTitle>
+              <CardDescription>By profit contribution</CardDescription>
             </CardHeader>
             <CardContent>
               {profitByProduct ? (
-                <div className="space-y-1">
-                  {profitByProduct.slice(0, 6).map((p, i) => (
-                    <div
-                      key={p.productId}
-                      className="flex items-center justify-between py-2.5 border-b border-border last:border-0"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-medium text-muted-foreground w-5">{i + 1}</span>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{p.productName}</p>
-                          <p className="text-xs text-muted-foreground">{p.quantitySold} sold</p>
-                        </div>
+                <div className="space-y-4">
+                  {topProducts.map((p, i) => (
+                    <div key={p.productId} className="space-y-1.5">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="flex items-center gap-2 truncate">
+                          <span className="text-xs font-medium text-muted-foreground w-4">
+                            {i + 1}
+                          </span>
+                          <span className="truncate font-medium text-foreground">
+                            {p.productName}
+                          </span>
+                        </span>
+                        <span className="shrink-0 font-semibold text-forest-600">
+                          TSh {p.totalProfit.toLocaleString()}
+                        </span>
                       </div>
-                      <p className="text-sm font-semibold text-forest-600">
-                        TSh {p.totalProfit.toLocaleString()}
-                      </p>
+                      <div className="ml-6 h-2 overflow-hidden rounded-full bg-mint-100 dark:bg-forest-800">
+                        <div
+                          className="h-full rounded-full bg-forest-600"
+                          style={{
+                            width: `${maxProfit > 0 ? (p.totalProfit / maxProfit) * 100 : 0}%`,
+                          }}
+                        />
+                      </div>
                     </div>
                   ))}
-                  {profitByProduct.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-8">No sales data yet</p>
+                  {topProducts.length === 0 && (
+                    <p className="py-8 text-center text-sm text-muted-foreground">
+                      No sales data yet
+                    </p>
                   )}
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {[...Array(6)].map((_, i) => (
+                  {[...Array(5)].map((_, i) => (
                     <Skeleton key={i} className="h-10 w-full" />
                   ))}
                 </div>
@@ -220,14 +236,15 @@ export default function DashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle>Recent Transactions</CardTitle>
+              <CardDescription>Latest recorded sales</CardDescription>
             </CardHeader>
             <CardContent>
               {recentSales ? (
-                <div className="space-y-1">
+                <div>
                   {recentSales.content.map((sale) => (
                     <div
                       key={sale.id}
-                      className="flex items-center justify-between py-2.5 border-b border-border last:border-0"
+                      className="flex items-center justify-between border-b border-border py-2.5 last:border-0"
                     >
                       <div>
                         <p className="text-sm font-medium text-foreground">
@@ -243,7 +260,9 @@ export default function DashboardPage() {
                     </div>
                   ))}
                   {recentSales.content.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-8">No sales yet</p>
+                    <p className="py-8 text-center text-sm text-muted-foreground">
+                      No sales yet
+                    </p>
                   )}
                 </div>
               ) : (
@@ -259,21 +278,29 @@ export default function DashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle>Worker Attendance</CardTitle>
+              <CardDescription>Worker status overview</CardDescription>
             </CardHeader>
             <CardContent>
               {workers ? (
-                <div className="space-y-3">
+                <div>
                   {workers.slice(0, 5).map((worker) => (
                     <div
                       key={worker.id}
-                      className="flex items-center justify-between py-2.5 border-b border-border last:border-0"
+                      className="flex items-center justify-between border-b border-border py-2.5 last:border-0"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-mint-100 flex items-center justify-center text-xs font-semibold text-forest-700">
-                          {worker.fullname.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-mint-100 text-xs font-semibold text-forest-700">
+                          {worker.fullname
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .slice(0, 2)
+                            .toUpperCase()}
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-foreground">{worker.fullname}</p>
+                          <p className="text-sm font-medium text-foreground">
+                            {worker.fullname}
+                          </p>
                           <p className="text-xs text-muted-foreground">{worker.email}</p>
                         </div>
                       </div>
@@ -291,7 +318,7 @@ export default function DashboardPage() {
                     </div>
                   ))}
                   <Link href="/workers">
-                    <Button variant="outline" className="w-full mt-2">
+                    <Button variant="outline" className="mt-2 w-full">
                       Manage Workers
                       <ArrowRight className="h-4 w-4" />
                     </Button>
