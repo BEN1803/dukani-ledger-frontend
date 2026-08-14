@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useActivityLogs } from "@/hooks/use-activity-logs";
-import { format } from "date-fns";
+import { formatDateSafe } from "@/lib/dates";
 import { ClipboardList } from "lucide-react";
 
 export default function ActivityLogsPage() {
@@ -57,7 +57,7 @@ export default function ActivityLogsPage() {
                             </td>
                             <td className="py-3 px-2 text-muted-foreground">{log.entity}</td>
                             <td className="py-3 px-2 text-muted-foreground">
-                              {format(new Date(log.timeStamp), "MMM d, yyyy HH:mm:ss")}
+                              {formatDateSafe(log.timeStamp, "MMM d, yyyy HH:mm:ss")}
                             </td>
                           </tr>
                         ))}

@@ -32,7 +32,7 @@ import {
   useMonthlyProfitHistory,
 } from "@/hooks/use-profits";
 import { useSales } from "@/hooks/use-sales";
-import { format } from "date-fns";
+import { formatDateSafe } from "@/lib/dates";
 import Link from "next/link";
 
 export default function DashboardPage() {
@@ -149,7 +149,7 @@ export default function DashboardPage() {
                       <CartesianGrid strokeDasharray="3 3" stroke="#d4e0d4" />
                       <XAxis
                         dataKey="date"
-                        tickFormatter={(d) => format(new Date(d), "EEE")}
+                        tickFormatter={(d) => formatDateSafe(d, "EEE")}
                         tick={{ fontSize: 12, fill: "#5c6b60" }}
                         axisLine={{ stroke: "#d4e0d4" }}
                       />
@@ -163,7 +163,7 @@ export default function DashboardPage() {
                           border: "1px solid #d4e0d4",
                           boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                         }}
-                        labelFormatter={(d) => format(new Date(d as string), "MMM d, yyyy")}
+                        labelFormatter={(d) => formatDateSafe(d, "MMM d, yyyy")}
                         formatter={(value) => [`TSh ${Number(value).toLocaleString()}`, "Profit"]}
                       />
                       <Area
@@ -251,7 +251,7 @@ export default function DashboardPage() {
                           #{sale.id.toString().padStart(4, "0")} &middot; {sale.productName}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {format(new Date(sale.soldAt), "MMM d, HH:mm")} &middot; {sale.soldByName}
+                          {formatDateSafe(sale.soldAt, "MMM d, HH:mm")} &middot; {sale.soldByName}
                         </p>
                       </div>
                       <p className="text-sm font-semibold text-foreground">

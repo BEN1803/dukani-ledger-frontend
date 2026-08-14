@@ -16,6 +16,7 @@ import { useSales } from "@/hooks/use-sales";
 import { useProducts } from "@/hooks/use-products";
 import { useWorkers } from "@/hooks/use-workers";
 import { useDailyProfitHistory } from "@/hooks/use-profits";
+import { formatDateSafe } from "@/lib/dates";
 import { format } from "date-fns";
 import {
   Plus,
@@ -105,7 +106,7 @@ export default function SalesPage() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#d4e0d4" />
                     <XAxis
                       dataKey="date"
-                      tickFormatter={(d) => format(new Date(d), "EEE")}
+                      tickFormatter={(d) => formatDateSafe(d, "EEE")}
                       tick={{ fontSize: 12, fill: "#5c6b60" }}
                       axisLine={{ stroke: "#d4e0d4" }}
                     />
@@ -116,7 +117,7 @@ export default function SalesPage() {
                         border: "1px solid #d4e0d4",
                         boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                       }}
-                      labelFormatter={(d) => format(new Date(d as string), "MMM d, yyyy")}
+                      labelFormatter={(d) => formatDateSafe(d, "MMM d, yyyy")}
                       formatter={(value) => [`TSh ${Number(value).toLocaleString()}`, "Revenue"]}
                     />
                     <Area
@@ -171,7 +172,7 @@ export default function SalesPage() {
                             TSh {sale.totalPrice.toLocaleString()}
                           </td>
                           <td className="py-3.5 px-4 text-muted-foreground">
-                            {format(new Date(sale.soldAt), "MMM d, yyyy")}
+                            {formatDateSafe(sale.soldAt, "MMM d, yyyy")}
                           </td>
                           <td className="py-3.5 px-4 text-muted-foreground">{sale.soldByName}</td>
                           <td className="py-3.5 px-4 text-right">

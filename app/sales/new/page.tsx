@@ -30,7 +30,7 @@ export default function NewSalePage() {
   const createSale = useCreateSale();
   const router = useRouter();
 
-  const stockMap = new Map(stock?.map((s) => [s.productId, s.quantityAvailable]) || []);
+  const stockMap = new Map(stock?.map((s) => [String(s.productId), s.quantityAvailable]) || []);
 
   const {
     register,
@@ -44,11 +44,11 @@ export default function NewSalePage() {
 
   const selectedProductId = watch("productId");
   const selectedProduct = products?.find((p) => p.id === selectedProductId);
-  const availableStock = selectedProduct ? stockMap.get(selectedProduct.productId) ?? 0 : 0;
+  const availableStock = selectedProduct ? stockMap.get(String(selectedProduct.id)) ?? 0 : 0;
   const totalPrice = (Number(watch("sellingPrice") || 0) * Number(watch("quantity") || 0)).toLocaleString();
 
   const onSubmit = (data: SaleForm) => {
-    createSale.mutate(data, {
+    createSale.mutate({ ...data, soldAt: new Date().toISOString() }, {
       onSuccess: () => router.push("/sales"),
     });
   };
@@ -89,7 +89,7 @@ export default function NewSalePage() {
                   <SelectContent>
                     {products?.map((p) => (
                       <SelectItem key={p.id} value={String(p.id)}>
-                        {p.name} ({p.productId}) - Stock: {stockMap.get(p.productId) ?? 0}
+                        {p.name} ({p.productId}) - Stock: {stockMap.get(String(p.id)) ?? 0}
                       </SelectItem>
                     ))}
                   </SelectContent>

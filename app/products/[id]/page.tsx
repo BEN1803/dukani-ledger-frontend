@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useProduct } from "@/hooks/use-products";
 import { useStock } from "@/hooks/use-stock";
 import { useSalesForProduct } from "@/hooks/use-sales";
-import { format } from "date-fns";
+import { formatDateSafe } from "@/lib/dates";
 import Link from "next/link";
 import { ArrowLeft, Package } from "lucide-react";
 
@@ -19,7 +19,7 @@ export default function ProductDetailPage() {
   const { data: stockData } = useStock();
   const { data: sales } = useSalesForProduct(id);
 
-  const stockQty = stockData?.find((s) => s.productId === product?.productId)?.quantityAvailable ?? 0;
+  const stockQty = stockData?.find((s) => String(s.productId) === String(product?.id))?.quantityAvailable ?? 0;
 
   if (isLoading) {
     return (
@@ -85,7 +85,7 @@ export default function ProductDetailPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-zinc-500">Stock</span>
-                <Badge variant={stockQty <= 5 ? "destructive" : "default"}>{stockQty}</Badge>
+                <Badge variant={stockQty <= 3 ? "destructive" : "default"}>{stockQty}</Badge>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-zinc-500">Added By</span>
@@ -93,7 +93,7 @@ export default function ProductDetailPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-zinc-500">Created</span>
-                <span className="text-sm">{format(new Date(product.createdAt), "MMM d, yyyy")}</span>
+                <span className="text-sm">{formatDateSafe(product.createdAt, "MMM d, yyyy")}</span>
               </div>
             </CardContent>
           </Card>
@@ -113,7 +113,7 @@ export default function ProductDetailPage() {
                       <div>
                         <p className="text-sm font-medium">x{sale.quantity}</p>
                         <p className="text-xs text-forest-600">
-                          {format(new Date(sale.soldAt), "MMM d, HH:mm")}
+                          {formatDateSafe(sale.soldAt, "MMM d, HH:mm")}
                         </p>
                       </div>
                       <div className="text-right">

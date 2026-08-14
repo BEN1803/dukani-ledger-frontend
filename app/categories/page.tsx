@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useCategories, useCreateCategory } from "@/hooks/use-categories";
-import { format } from "date-fns";
+import { formatDateSafe } from "@/lib/dates";
 import { Plus, Tags } from "lucide-react";
 
 export default function CategoriesPage() {
@@ -94,7 +94,7 @@ export default function CategoriesPage() {
                         <td className="py-3 px-2 font-medium">{cat.name}</td>
                         <td className="py-3 px-2 text-zinc-500">{cat.ownerName}</td>
                         <td className="py-3 px-2 text-zinc-500">
-                          {format(new Date(cat.createdAt), "MMM d, yyyy")}
+                          {formatDateSafe(cat.createdAt, "MMM d, yyyy")}
                         </td>
                       </tr>
                     ))}

@@ -119,6 +119,7 @@ export interface SaleRequest {
   productId: number;
   sellingPrice: number;
   quantity: number;
+  soldAt?: string;
 }
 
 export interface SaleResponse {

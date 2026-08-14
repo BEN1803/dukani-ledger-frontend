@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { usePurchases, useCreatePurchase } from "@/hooks/use-purchases";
-import { format } from "date-fns";
+import { formatDateSafe } from "@/lib/dates";
 import { Plus, ShoppingCart } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
 
@@ -136,7 +136,7 @@ export default function PurchasesPage() {
                           </td>
                           <td className="py-3 px-2 text-zinc-500">{p.purchasedByName}</td>
                           <td className="py-3 px-2 text-zinc-500">
-                            {format(new Date(p.purchasedAt), "MMM d, HH:mm")}
+                            {formatDateSafe(p.purchasedAt, "MMM d, HH:mm")}
                           </td>
                         </tr>
                       ))}

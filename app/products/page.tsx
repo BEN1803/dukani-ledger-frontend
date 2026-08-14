@@ -79,7 +79,7 @@ export default function ProductsPage() {
                   </thead>
                   <tbody>
                     {filtered.map((product) => {
-                      const stockQty = stockMap.get(product.productId) ?? 0;
+                      const stockQty = stockMap.get(String(product.id)) ?? 0;
                       return (
                         <tr
                           key={product.id}
@@ -101,8 +101,8 @@ export default function ProductsPage() {
                             {product.sellingPrice ? `TSh ${product.sellingPrice.toLocaleString()}` : "—"}
                           </td>
                           <td className="py-3.5 px-4 text-center">
-                            <Badge variant={stockQty <= 5 ? "destructive" : stockQty <= 10 ? "warning" : "success"}>
-                              {stockQty <= 5 ? "Low Stock" : stockQty <= 10 ? "Limited" : "In Stock"}
+                            <Badge variant={stockQty <= 3 ? "destructive" : stockQty <= 10 ? "warning" : "success"}>
+                              {stockQty <= 3 ? "Low Stock" : stockQty <= 10 ? "Limited" : "In Stock"}
                             </Badge>
                           </td>
                           <td className="py-3.5 px-4 text-right">

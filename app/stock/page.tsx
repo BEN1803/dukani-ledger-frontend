@@ -4,13 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useStock } from "@/hooks/use-stock";
+import { formatDateSafe } from "@/lib/dates";
 import { Boxes } from "lucide-react";
-import { format } from "date-fns";
 
 export default function StockPage() {
   const { data: stock, isLoading } = useStock();
 
-  const lowStock = stock?.filter((s) => s.quantityAvailable <= 5) || [];
+  const lowStock = stock?.filter((s) => s.quantityAvailable <= 3) || [];
 
   return (
     <DashboardLayout>
@@ -74,12 +74,12 @@ export default function StockPage() {
                         <td className="py-3 px-2 font-mono text-xs">{s.productCode}</td>
                         <td className="py-3 px-2 font-medium">{s.productName}</td>
                         <td className="py-3 px-2 text-right">
-                          <Badge variant={s.quantityAvailable <= 5 ? "destructive" : s.quantityAvailable <= 10 ? "secondary" : "default"}>
+                          <Badge variant={s.quantityAvailable <= 3 ? "destructive" : s.quantityAvailable <= 10 ? "secondary" : "default"}>
                             {s.quantityAvailable}
                           </Badge>
                         </td>
                         <td className="py-3 px-2 text-zinc-500">
-                          {format(new Date(s.updatedAt), "MMM d, yyyy HH:mm")}
+                          {formatDateSafe(s.updatedAt, "MMM d, yyyy HH:mm")}
                         </td>
                       </tr>
                     ))}
