@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { SaleForm } from "@/components/pos/sale-form";
 import { SalesHistoryTable } from "@/components/pos/sales-history-table";
-import { useSales, useCreateSale } from "@/hooks/use-sales";
+import { useSales, useCreateSale, useUpdateSale } from "@/hooks/use-sales";
 import { useProducts } from "@/hooks/use-products";
 import { useStock } from "@/hooks/use-stock";
-import { Plus, Receipt } from "lucide-react";
+import { Plus, Receipt, Lock } from "lucide-react";
 
 export default function SalesPage() {
   const [page, setPage] = useState(0);
@@ -18,6 +18,7 @@ export default function SalesPage() {
   const { data: products } = useProducts();
   const { data: stock } = useStock();
   const createSale = useCreateSale();
+  const updateSale = useUpdateSale();
 
   return (
     <DashboardLayout>
@@ -60,11 +61,23 @@ export default function SalesPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Sales History</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              Sales History
+              <span className="inline-flex items-center gap-1 rounded-full bg-mint-100 px-2 py-0.5 text-[11px] font-medium text-forest-700 dark:bg-forest-800 dark:text-mint-300">
+                <Lock className="h-3 w-3" />
+                Today&apos;s sales can be edited until day ends
+              </span>
+            </CardTitle>
             <CardDescription>All recorded sales, newest first</CardDescription>
           </CardHeader>
           <CardContent>
-            <SalesHistoryTable data={data} isLoading={isLoading} onPageChange={setPage} />
+            <SalesHistoryTable
+              data={data}
+              isLoading={isLoading}
+              onPageChange={setPage}
+              onUpdate={(id, sellingPrice) => updateSale.mutate({ id, data: { sellingPrice } })}
+              isUpdating={updateSale.isPending}
+            />
           </CardContent>
         </Card>
       </div>

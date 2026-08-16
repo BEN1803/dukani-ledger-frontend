@@ -134,6 +134,10 @@ export interface SaleResponse {
   soldAt: string;
 }
 
+export interface UpdateSaleRequest {
+  sellingPrice: number;
+}
+
 export interface StockResponse {
   id: number;
   productId: number;
