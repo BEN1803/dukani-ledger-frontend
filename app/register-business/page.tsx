@@ -66,7 +66,7 @@ export default function RegisterBusinessPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="fullname">Your Full Name</Label>
-                <Input id="fullname" placeholder="John Doe" {...register("fullname")} />
+                <Input id="fullname" placeholder="Alex John" {...register("fullname")} />
                 {errors.fullname && (
                   <p className="text-xs text-red-500">{errors.fullname.message}</p>
                 )}
@@ -80,14 +80,14 @@ export default function RegisterBusinessPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone</Label>
-                <Input id="phone" placeholder="+254 700 000 000" {...register("phone")} />
+                <Input id="phone" placeholder="0700 000 000" {...register("phone")} />
                 {errors.phone && (
                   <p className="text-xs text-red-500">{errors.phone.message}</p>
                 )}
               </div>
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="location">Location</Label>
-                <Input id="location" placeholder="Nairobi, Kenya" {...register("location")} />
+                <Input id="location" placeholder="Dar es salaam, Tanzania" {...register("location")} />
                 {errors.location && (
                   <p className="text-xs text-red-500">{errors.location.message}</p>
                 )}

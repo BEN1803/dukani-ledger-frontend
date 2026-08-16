@@ -124,7 +124,7 @@ export default function WorkersPage() {
                 <form onSubmit={addForm.handleSubmit(onAddSubmit)} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="add-fullname">Full Name</Label>
-                    <Input id="add-fullname" placeholder="Jane Doe" {...addForm.register("fullname")} />
+                    <Input id="add-fullname" placeholder="Alex John" {...addForm.register("fullname")} />
                     {addForm.formState.errors.fullname && <p className="text-xs text-red-500">{addForm.formState.errors.fullname.message}</p>}
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -142,7 +142,7 @@ export default function WorkersPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="add-phone">Phone</Label>
-                      <Input id="add-phone" placeholder="+254 700 000 000" {...addForm.register("phone")} />
+                      <Input id="add-phone" placeholder="0700 000 000" {...addForm.register("phone")} />
                       {addForm.formState.errors.phone && <p className="text-xs text-red-500">{addForm.formState.errors.phone.message}</p>}
                     </div>
                     <div className="space-y-2">
@@ -160,7 +160,7 @@ export default function WorkersPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="add-address">Address</Label>
-                    <Input id="add-address" placeholder="Nairobi, Kenya" {...addForm.register("address")} />
+                    <Input id="add-address" placeholder="Iyunga, Mbeya" {...addForm.register("address")} />
                     {addForm.formState.errors.address && <p className="text-xs text-red-500">{addForm.formState.errors.address.message}</p>}
                   </div>
                   <Button type="submit" className="w-full" disabled={addWorker.isPending}>
