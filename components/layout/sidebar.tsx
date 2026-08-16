@@ -36,7 +36,7 @@ const navItems: NavItem[] = [
   { label: "Sales", href: "/sales", icon: DollarSign, roles: ["OWNER", "ADMIN", "WORKER"], section: "operations" },
   { label: "Stock", href: "/stock", icon: Boxes, roles: ["OWNER", "ADMIN", "WORKER"], section: "operations" },
   { label: "Categories", href: "/categories", icon: Tags, roles: ["OWNER", "ADMIN"], section: "management" },
-  { label: "Purchases", href: "/purchases", icon: ShoppingCart, roles: ["OWNER", "ADMIN"], section: "management" },
+  { label: "Purchases", href: "/purchases", icon: ShoppingCart, roles: ["OWNER", "ADMIN", "WORKER"], section: "management" },
   { label: "Workers", href: "/workers", icon: Users, roles: ["OWNER"], section: "management" },
   { label: "Activity Logs", href: "/activity-logs", icon: ClipboardList, roles: ["OWNER", "ADMIN"], section: "management" },
   { label: "Reports", href: "/reports", icon: BarChart3, roles: ["OWNER", "ADMIN"], section: "management" },

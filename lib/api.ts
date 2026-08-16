@@ -8,8 +8,9 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("token");
-    const isAuthEndpoint = config.url?.startsWith("/auth/");
-    if (token && !isAuthEndpoint) {
+    const isPublicAuthEndpoint =
+      config.url === "/auth/login" || config.url === "/auth/register";
+    if (token && !isPublicAuthEndpoint) {
       config.headers.Authorization = `Bearer ${token}`;
     }
   }

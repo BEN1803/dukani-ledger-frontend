@@ -58,10 +58,15 @@ export function useRegisterBusiness() {
 }
 
 export function useChangePassword() {
+  const logout = useAuthStore((s) => s.logout);
+  const router = useRouter();
+
   return useMutation({
     mutationFn: (data: ChangePasswordRequest) => authService.changePassword(data),
     onSuccess: () => {
-      toast.success("Password changed successfully");
+      toast.success("Password changed successfully. Please sign in again.");
+      logout();
+      router.push("/login");
     },
     onError: (err: any) => {
       toast.error(err.response?.data?.message || err.message || "Failed to change password");

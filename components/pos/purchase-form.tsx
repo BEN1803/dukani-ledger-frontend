@@ -31,6 +31,7 @@ interface PurchaseFormProps {
   categories: CategoryResponse[];
   isPending: boolean;
   isCreatingCategory: boolean;
+  canCreateCategory?: boolean;
   onSubmit: (data: PurchaseFormData) => void;
   onCreateCategory: (name: string) => Promise<void>;
 }
@@ -40,6 +41,7 @@ export function PurchaseForm({
   categories,
   isPending,
   isCreatingCategory,
+  canCreateCategory = true,
   onSubmit,
   onCreateCategory,
 }: PurchaseFormProps) {
@@ -180,16 +182,18 @@ export function PurchaseForm({
                     {c.name}
                   </SelectItem>
                 ))}
-                <button
-                  type="button"
-                  onClick={() => setAddingCategory(true)}
-                  className={cn(
-                    "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 pl-8 text-sm text-forest-600 hover:bg-mint-50 dark:text-mint-300 dark:hover:bg-forest-800"
-                  )}
-                >
-                  <Plus className="h-4 w-4" />
-                  Add new category
-                </button>
+                {canCreateCategory && (
+                  <button
+                    type="button"
+                    onClick={() => setAddingCategory(true)}
+                    className={cn(
+                      "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 pl-8 text-sm text-forest-600 hover:bg-mint-50 dark:text-mint-300 dark:hover:bg-forest-800"
+                    )}
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add new category
+                  </button>
+                )}
               </SelectContent>
             </Select>
           )}

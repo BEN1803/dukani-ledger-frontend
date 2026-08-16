@@ -14,6 +14,7 @@ import {
   Plus,
   AlertTriangle,
   Boxes,
+  ShoppingCart,
 } from "lucide-react";
 import {
   AreaChart,
@@ -35,10 +36,14 @@ import {
   useMonthlyProfitHistory,
 } from "@/hooks/use-profits";
 import { useSales } from "@/hooks/use-sales";
+import { usePurchases } from "@/hooks/use-purchases";
 import { useAuthStore } from "@/store/auth-store";
 import { StatCard } from "@/components/ui/stat-card";
 import { formatDateSafe, isSameDayLocal } from "@/lib/dates";
+import type { SaleResponse } from "@/types";
 import Link from "next/link";
+
+const normalize = (value: string) => value.trim().toLowerCase().replace(/\s+/g, " ");
 
 export default function DashboardPage() {
   const now = new Date();
@@ -56,13 +61,60 @@ export default function DashboardPage() {
   const { data: monthlyProfit } = useMonthlyProfit(nowYear, nowMonth, !isWorker);
   const { data: monthlyHistory } = useMonthlyProfitHistory(undefined, !isWorker);
   const { data: recentSales } = useSales(0, isWorker ? 100 : 5);
+  const { data: recentPurchases } = usePurchases(0, 100, isWorker);
 
   const workerName = isWorker
-    ? workers?.find((w) => w.email === email)?.fullname || email || ""
+    ? workers
+        ?.find((w) => w.email?.trim().toLowerCase() === email?.trim().toLowerCase())
+        ?.fullname || email || ""
     : "";
+
+  const workerIdentifiers = isWorker
+    ? (() => {
+        const fullname = (workerName ?? "").trim().toLowerCase();
+        const emailLower = (email ?? "").trim().toLowerCase();
+        const [localPart, domainPart] = emailLower.split("@");
+        const set = new Set<string>();
+        set.add(fullname);
+        set.add(emailLower);
+        set.add(localPart || "");
+        set.add(domainPart || "");
+        for (const w of fullname.split(" ")) {
+          if (w) set.add(w);
+        }
+        for (const word of localPart.split(/[._-]/)) {
+          if (word) set.add(word);
+        }
+        set.add(fullname.replace(/\s+/g, ""));
+        set.add(fullname.replace(/\s+/g, "."));
+        set.delete("");
+        return [...set];
+      })()
+    : [];
+
+  const isMySale = (sale: SaleResponse) => {
+    const soldBy = normalize(sale.soldByName ?? "");
+    if (!soldBy) return false;
+    if (workerIdentifiers.includes(soldBy)) return true;
+
+    const emailLower = (email ?? "").trim().toLowerCase();
+    const localPart = emailLower.split("@")[0];
+    if (soldBy === localPart) return true;
+
+    const soldByNoSpace = soldBy.replace(/\s+/g, "").replace(/\./g, "");
+    const localNoSpace = localPart.replace(/[._-]/g, "");
+    const emailNoSpace = emailLower.replace(/[@._-]/g, "");
+    return (
+      soldByNoSpace === localNoSpace ||
+      soldByNoSpace === emailNoSpace ||
+      soldBy === emailLower ||
+      soldByNoSpace.includes(localNoSpace)
+    );
+  };
+
   const mySales = isWorker
     ? (recentSales?.content ?? [])
-        .filter((s) => s.soldByName === workerName)
+        .filter(isMySale)
         .slice()
         .sort(
           (a, b) =>
@@ -75,6 +127,16 @@ export default function DashboardPage() {
     : [];
   const todaySalesCount = todaySales.length;
   const todaySalesTotal = todaySales.reduce((sum, s) => sum + s.totalPrice, 0);
+  const todayPurchases = isWorker
+    ? (recentPurchases?.content ?? []).filter((p) =>
+        isSameDayLocal(p.purchasedAt, new Date())
+      )
+    : [];
+  const todayPurchasesCount = todayPurchases.length;
+  const todayPurchasedUnits = todayPurchases.reduce(
+    (sum, p) => sum + p.quantity,
+    0
+  );
   const lowStockCount = (stockData ?? []).filter((s) => s.quantityAvailable < 5).length;
 
   const productCounts = new Map<string, number>();
@@ -168,14 +230,12 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {!isWorker && (
-              <Button asChild variant="outline">
-                <Link href="/purchases">
-                  <Package className="h-4 w-4" />
-                  Log Purchase
-                </Link>
-              </Button>
-            )}
+            <Button asChild variant="outline">
+              <Link href="/purchases">
+                <Package className="h-4 w-4" />
+                Log Purchase
+              </Link>
+            </Button>
             <Button asChild>
               <Link href="/sales/new">
                 <Plus className="h-4 w-4" />
@@ -186,7 +246,7 @@ export default function DashboardPage() {
         </div>
 
         {isWorker && (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
             <StatCard
               title="Sales Today"
               value={String(todaySalesCount)}
@@ -198,6 +258,18 @@ export default function DashboardPage() {
               value={`TSh ${todaySalesTotal.toLocaleString()}`}
               icon={DollarSign}
               subtitle="from your sales"
+            />
+            <StatCard
+              title="Purchases Today"
+              value={String(todayPurchasesCount)}
+              icon={ShoppingCart}
+              subtitle="restocks recorded"
+            />
+            <StatCard
+              title="Stock Added Today"
+              value={todayPurchasedUnits.toLocaleString()}
+              icon={Package}
+              subtitle="units from purchases"
             />
             <StatCard
               title="Low Stock Alerts"

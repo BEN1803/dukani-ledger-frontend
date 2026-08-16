@@ -10,11 +10,14 @@ import { PurchasesHistoryTable } from "@/components/pos/purchases-history-table"
 import { usePurchases, useCreatePurchase } from "@/hooks/use-purchases";
 import { useProducts } from "@/hooks/use-products";
 import { useCategories, useCreateCategory } from "@/hooks/use-categories";
+import { useAuthStore } from "@/store/auth-store";
 import { Plus, Truck } from "lucide-react";
 
 export default function PurchasesPage() {
   const [page, setPage] = useState(0);
   const [open, setOpen] = useState(false);
+  const role = useAuthStore((s) => s.role);
+  const isWorker = role === "WORKER";
   const { data, isLoading } = usePurchases(page);
   const { data: products } = useProducts();
   const { data: categories } = useCategories();
@@ -23,7 +26,7 @@ export default function PurchasesPage() {
 
   return (
     <DashboardLayout>
-      <RoleGuard allowedRoles={["OWNER", "ADMIN"]}>
+      <RoleGuard allowedRoles={["OWNER", "ADMIN", "WORKER"]}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -49,6 +52,7 @@ export default function PurchasesPage() {
               categories={categories ?? []}
               isPending={createPurchase.isPending}
               isCreatingCategory={createCategory.isPending}
+              canCreateCategory={!isWorker}
               onCreateCategory={async (name) => {
                 await createCategory.mutateAsync({ name });
               }}
@@ -66,7 +70,11 @@ export default function PurchasesPage() {
         <Card>
           <CardHeader>
             <CardTitle>Purchase History</CardTitle>
-            <CardDescription>All recorded purchases, newest first</CardDescription>
+            <CardDescription>
+              {isWorker
+                ? "Your recorded purchases, newest first"
+                : "All recorded purchases, newest first"}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <PurchasesHistoryTable data={data} isLoading={isLoading} onPageChange={setPage} />
