@@ -40,6 +40,12 @@ const pageTitles: Record<string, string> = {
   "/change-password": "Change Password",
 };
 
+const roleLabels: Record<string, string> = {
+  OWNER: "Owner",
+  ADMIN: "Administrator",
+  WORKER: "Worker",
+};
+
 export function Navbar() {
   const { theme, setTheme } = useTheme();
   const { email, role, logout } = useAuthStore();
@@ -125,7 +131,9 @@ export function Navbar() {
           <DropdownMenuLabel>
             <div className="flex flex-col">
               <span className="text-sm font-medium">{email}</span>
-              <span className="text-xs text-muted-foreground">{role}</span>
+              <span className="text-xs text-muted-foreground">
+                {role ? roleLabels[role] ?? role : "—"}
+              </span>
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />

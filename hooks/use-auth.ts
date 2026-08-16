@@ -4,16 +4,20 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/auth-store";
 import { authService } from "@/services/auth.service";
+import { resolveRoleFromWorkers } from "@/lib/resolve-role";
 import type { LoginRequest, RegisterRequest, BusinessRequest, ChangePasswordRequest } from "@/types";
 
 export function useLogin() {
   const setAuth = useAuthStore((s) => s.setAuth);
+  const setRole = useAuthStore((s) => s.setRole);
   const router = useRouter();
 
   return useMutation({
     mutationFn: (data: LoginRequest) => authService.login(data),
-    onSuccess: (res) => {
-      setAuth(res.token, res.email, "OWNER");
+    onSuccess: async (res) => {
+      setAuth(res.token, res.email, res.role ?? null);
+      const role = res.role ?? (await resolveRoleFromWorkers(res.email));
+      setRole(role);
       toast.success("Logged in successfully");
       router.push("/dashboard");
     },

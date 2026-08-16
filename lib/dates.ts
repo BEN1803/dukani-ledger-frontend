@@ -24,3 +24,13 @@ export function formatDateSafe(value: unknown, pattern: string, fallback = "—"
   if (!date) return fallback;
   return format(date, pattern);
 }
+
+export function isSameDayLocal(value: unknown, compare: Date): boolean {
+  const date = parseDateSafe(value);
+  if (!date) return false;
+  return (
+    date.getFullYear() === compare.getFullYear() &&
+    date.getMonth() === compare.getMonth() &&
+    date.getDate() === compare.getDate()
+  );
+}

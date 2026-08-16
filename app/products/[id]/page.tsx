@@ -8,13 +8,16 @@ import { Button } from "@/components/ui/button";
 import { useProduct } from "@/hooks/use-products";
 import { useStock } from "@/hooks/use-stock";
 import { useSalesForProduct } from "@/hooks/use-sales";
+import { useAuthStore } from "@/store/auth-store";
 import { formatDateSafe } from "@/lib/dates";
 import Link from "next/link";
-import { ArrowLeft, Package } from "lucide-react";
+import { ArrowLeft, Package, Pencil } from "lucide-react";
 
 export default function ProductDetailPage() {
   const params = useParams();
   const id = Number(params.id);
+  const role = useAuthStore((s) => s.role);
+  const isWorker = role === "WORKER";
   const { data: product, isLoading } = useProduct(id);
   const { data: stockData } = useStock();
   const { data: sales } = useSalesForProduct(id);
@@ -59,6 +62,14 @@ export default function ProductDetailPage() {
             <h1 className="text-2xl font-bold">{product.name}</h1>
             <p className="text-sm text-forest-600">{product.productId}</p>
           </div>
+          {!isWorker && (
+            <Button variant="outline" size="sm" className="ml-auto" asChild>
+              <Link href={`/products/${id}/edit`}>
+                <Pencil className="h-4 w-4" />
+                Edit
+              </Link>
+            </Button>
+          )}
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
@@ -71,12 +82,14 @@ export default function ProductDetailPage() {
                 <span className="text-sm text-zinc-500">Category</span>
                 <span className="text-sm font-medium">{product.category || "—"}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-zinc-500">Cost Price</span>
-                <span className="text-sm font-medium">
-                  {product.costPrice ? `TSh ${product.costPrice.toLocaleString()}` : "—"}
-                </span>
-              </div>
+              {!isWorker && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-zinc-500">Cost Price</span>
+                  <span className="text-sm font-medium">
+                    {product.costPrice ? `TSh ${product.costPrice.toLocaleString()}` : "—"}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-sm text-zinc-500">Selling Price</span>
                 <span className="text-sm font-medium">

@@ -27,30 +27,44 @@ interface NavItem {
   href: string;
   icon: React.ElementType;
   roles: Role[];
+  section: "operations" | "management" | "account";
 }
 
 const navItems: NavItem[] = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["OWNER", "ADMIN", "WORKER"] },
-  { label: "Products", href: "/products", icon: Package, roles: ["OWNER", "ADMIN", "WORKER"] },
-  { label: "Categories", href: "/categories", icon: Tags, roles: ["OWNER", "ADMIN", "WORKER"] },
-  { label: "Purchases", href: "/purchases", icon: ShoppingCart, roles: ["OWNER", "ADMIN", "WORKER"] },
-  { label: "Sales", href: "/sales", icon: DollarSign, roles: ["OWNER", "ADMIN", "WORKER"] },
-  { label: "Stock", href: "/stock", icon: Boxes, roles: ["OWNER", "ADMIN", "WORKER"] },
-  { label: "Workers", href: "/workers", icon: Users, roles: ["OWNER"] },
-  { label: "Activity Logs", href: "/activity-logs", icon: ClipboardList, roles: ["OWNER", "ADMIN"] },
-  { label: "Reports", href: "/reports", icon: BarChart3, roles: ["OWNER", "ADMIN"] },
-  { label: "Profile", href: "/profile", icon: UserCircle, roles: ["OWNER", "ADMIN", "WORKER"] },
+  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["OWNER", "ADMIN", "WORKER"], section: "operations" },
+  { label: "Products", href: "/products", icon: Package, roles: ["OWNER", "ADMIN", "WORKER"], section: "operations" },
+  { label: "Sales", href: "/sales", icon: DollarSign, roles: ["OWNER", "ADMIN", "WORKER"], section: "operations" },
+  { label: "Stock", href: "/stock", icon: Boxes, roles: ["OWNER", "ADMIN", "WORKER"], section: "operations" },
+  { label: "Categories", href: "/categories", icon: Tags, roles: ["OWNER", "ADMIN"], section: "management" },
+  { label: "Purchases", href: "/purchases", icon: ShoppingCart, roles: ["OWNER", "ADMIN"], section: "management" },
+  { label: "Workers", href: "/workers", icon: Users, roles: ["OWNER"], section: "management" },
+  { label: "Activity Logs", href: "/activity-logs", icon: ClipboardList, roles: ["OWNER", "ADMIN"], section: "management" },
+  { label: "Reports", href: "/reports", icon: BarChart3, roles: ["OWNER", "ADMIN"], section: "management" },
+  { label: "Profile", href: "/profile", icon: UserCircle, roles: ["OWNER", "ADMIN", "WORKER"], section: "account" },
 ];
+
+const sectionTitles: Partial<Record<NavItem["section"], string>> = {
+  operations: "Operations",
+  management: "Management",
+  account: "Account",
+};
 
 export function Sidebar() {
   const pathname = usePathname();
   const role = useAuthStore((s) => s.role);
+  const email = useAuthStore((s) => s.email);
   const { open, toggle, mobileOpen, setMobileOpen } = useSidebarStore();
   const logout = useAuthStore((s) => s.logout);
 
   const visibleItems = navItems.filter(
     (item) => role && item.roles.includes(role)
   );
+
+  const roleLabel = role
+    ? role === "ADMIN"
+      ? "Administrator"
+      : role.charAt(0) + role.slice(1).toLowerCase()
+    : "—";
 
   return (
     <>
@@ -95,43 +109,76 @@ export function Sidebar() {
           </Button>
         </div>
 
-        <nav className="flex-1 space-y-1 overflow-y-auto p-3">
-          {visibleItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+        <nav className="flex-1 space-y-4 overflow-y-auto p-3">
+          {(["operations", "management", "account"] as const).map((section) => {
+            const sectionItems = visibleItems.filter((item) => item.section === section);
+            if (sectionItems.length === 0) return null;
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setMobileOpen(false)}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-forest-700 text-white"
-                    : "text-forest-100 hover:bg-forest-700/50 hover:text-white",
-                  !open && "justify-center px-2"
+              <div key={section} className="space-y-1">
+                {open && (
+                  <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-forest-300">
+                    {sectionTitles[section]}
+                  </p>
                 )}
-                title={!open ? item.label : undefined}
-              >
-                <Icon className="h-5 w-5 shrink-0" />
-                {open && <span>{item.label}</span>}
-              </Link>
+                {sectionItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive =
+                    pathname === item.href || pathname.startsWith(item.href + "/");
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileOpen(false)}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                        isActive
+                          ? "bg-forest-700 text-white"
+                          : "text-forest-100 hover:bg-forest-700/50 hover:text-white",
+                        !open && "justify-center px-2"
+                      )}
+                      title={!open ? item.label : undefined}
+                    >
+                      <Icon className="h-5 w-5 shrink-0" />
+                      {open && <span>{item.label}</span>}
+                    </Link>
+                  );
+                })}
+              </div>
             );
           })}
         </nav>
 
         <div className="border-t border-forest-700 p-3">
-          <button
-            onClick={() => { logout(); window.location.href = "/login"; }}
-            className={cn(
-              "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-forest-100 transition-colors hover:bg-forest-700 hover:text-white",
-              !open && "justify-center px-2"
-            )}
-            title={!open ? "Logout" : undefined}
-          >
-            <LogOut className="h-5 w-5 shrink-0" />
-            {open && <span>Logout</span>}
-          </button>
+          <div className="space-y-1">
+            <div
+              className={cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm",
+                !open && "justify-center px-2"
+              )}
+              title={!open ? email ?? "Account" : undefined}
+            >
+              <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-forest-700 text-[10px] font-semibold text-white">
+                {(email?.charAt(0) ?? "U").toUpperCase()}
+              </div>
+              {open && (
+                <div className="min-w-0">
+                  <p className="truncate font-medium text-forest-50">{email}</p>
+                  <p className="text-xs font-medium text-forest-300">{roleLabel}</p>
+                </div>
+              )}
+            </div>
+            <button
+              onClick={() => { logout(); window.location.href = "/login"; }}
+              className={cn(
+                "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-forest-100 transition-colors hover:bg-forest-700 hover:text-white",
+                !open && "justify-center px-2"
+              )}
+              title={!open ? "Logout" : undefined}
+            >
+              <LogOut className="h-5 w-5 shrink-0" />
+              {open && <span>Logout</span>}
+            </button>
+          </div>
         </div>
       </aside>
     </>

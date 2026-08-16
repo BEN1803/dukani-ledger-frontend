@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
+import { RoleGuard } from "@/components/layout/role-guard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,6 +59,7 @@ export default function EditProductPage() {
 
   return (
     <DashboardLayout>
+      <RoleGuard allowedRoles={["OWNER", "ADMIN"]}>
       <div className="mx-auto max-w-lg">
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" size="icon" asChild>
@@ -108,6 +110,7 @@ export default function EditProductPage() {
           </CardContent>
         </Card>
       </div>
+      </RoleGuard>
     </DashboardLayout>
   );
 }

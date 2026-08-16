@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
+import { RoleGuard } from "@/components/layout/role-guard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,7 @@ export default function CategoriesPage() {
 
   return (
     <DashboardLayout>
+      <RoleGuard allowedRoles={["OWNER", "ADMIN"]}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -110,6 +112,7 @@ export default function CategoriesPage() {
           </CardContent>
         </Card>
       </div>
+      </RoleGuard>
     </DashboardLayout>
   );
 }

@@ -4,10 +4,11 @@ import { toast } from "sonner";
 import { workersService } from "@/services/workers.service";
 import type { WorkerRequest, UpdateWorkerRequest } from "@/types";
 
-export function useWorkers() {
+export function useWorkers(enabled = true) {
   return useQuery({
     queryKey: ["workers"],
     queryFn: () => workersService.getAll(),
+    enabled,
   });
 }
 
