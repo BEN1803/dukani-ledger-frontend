@@ -77,7 +77,7 @@ export function Sidebar() {
 
       <aside
         className={cn(
-          "fixed top-0 left-0 z-50 flex h-screen flex-col bg-sidebar text-sidebar-foreground transition-all duration-300 lg:sticky lg:top-0 lg:z-auto",
+          "fixed top-0 left-0 z-50 flex h-screen flex-col overflow-y-auto bg-sidebar text-sidebar-foreground transition-all duration-300 lg:sticky lg:top-0 lg:z-auto",
           open ? "w-64" : "w-16",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
@@ -109,7 +109,7 @@ export function Sidebar() {
           </Button>
         </div>
 
-        <nav className="flex-1 space-y-4 overflow-y-auto p-3">
+        <nav className="space-y-4 p-3">
           {(["operations", "management", "account"] as const).map((section) => {
             const sectionItems = visibleItems.filter((item) => item.section === section);
             if (sectionItems.length === 0) return null;
@@ -148,29 +148,29 @@ export function Sidebar() {
           })}
         </nav>
 
-        <div className="border-t border-forest-700 p-3">
-          <div className="space-y-1">
+        <div className="mt-auto border-t border-white/10 p-3">
+          <div className="space-y-2">
             <div
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm",
-                !open && "justify-center px-2"
+                "flex min-h-12 items-center gap-3 rounded-lg bg-white/5 px-3 py-2.5 text-sm ring-1 ring-white/10",
+                open ? "w-full" : "justify-center px-2"
               )}
               title={!open ? email ?? "Account" : undefined}
             >
-              <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-forest-700 text-[10px] font-semibold text-white">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-forest-950/45 text-sm font-semibold text-white shadow-inner ring-1 ring-white/10">
                 {(email?.charAt(0) ?? "U").toUpperCase()}
               </div>
               {open && (
                 <div className="min-w-0">
-                  <p className="truncate font-medium text-forest-50">{email}</p>
-                  <p className="text-xs font-medium text-forest-300">{roleLabel}</p>
+                  <p className="truncate font-semibold leading-5 text-forest-50">{email ?? "Signed in"}</p>
+                  <p className="truncate text-xs font-medium leading-4 text-forest-300">{roleLabel}</p>
                 </div>
               )}
             </div>
             <button
               onClick={() => { logout(); window.location.href = "/login"; }}
               className={cn(
-                "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-forest-100 transition-colors hover:bg-forest-700 hover:text-white",
+                "flex h-11 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-forest-100 transition-colors hover:bg-forest-700 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
                 !open && "justify-center px-2"
               )}
               title={!open ? "Logout" : undefined}

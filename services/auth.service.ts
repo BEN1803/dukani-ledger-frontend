@@ -12,9 +12,6 @@ export const authService = {
   login: (data: LoginRequest) =>
     api.post<LoginResponse>("/auth/login", data).then((r) => r.data),
 
-  register: (data: RegisterRequest) =>
-    api.post<UserResponse>("/auth/register", data).then((r) => r.data),
-
   registerBusiness: (data: BusinessRequest) =>
     api.post("/business/registration", data).then((r) => r.data),
 
