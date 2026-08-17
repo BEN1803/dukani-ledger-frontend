@@ -54,6 +54,17 @@ export interface BusinessRequest {
   fullname: string;
 }
 
+export interface BusinessResponse {
+  id: number;
+  shopName: string;
+  location: string | null;
+  phone: string | null;
+  email: string | null;
+  fullname: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
 export interface ChangePasswordRequest {
   oldPassword: string;
   newPassword: string;

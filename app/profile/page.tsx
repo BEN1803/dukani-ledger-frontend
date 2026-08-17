@@ -18,9 +18,9 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/store/auth-store";
 import { useWorkers } from "@/hooks/use-workers";
-import { useChangePassword } from "@/hooks/use-auth";
+import { useBusinessProfile, useChangePassword } from "@/hooks/use-auth";
 import { formatDateSafe } from "@/lib/dates";
-import { Mail, Phone, MapPin, User, ShieldCheck, KeyRound } from "lucide-react";
+import { Mail, Phone, MapPin, User, ShieldCheck, KeyRound, Store } from "lucide-react";
 
 const passwordSchema = z.object({
   oldPassword: z.string().min(1, "Current password is required"),
@@ -39,15 +39,18 @@ export default function ProfilePage() {
   const email = useAuthStore((s) => s.email);
   const role = useAuthStore((s) => s.role);
   const isWorker = role === "WORKER";
+  const isOwner = role === "OWNER";
   const { data: workers } = useWorkers(isWorker);
+  const { data: business, isLoading: businessLoading } = useBusinessProfile(isOwner);
   const changePassword = useChangePassword();
 
   const worker = isWorker
     ? workers?.find((w) => w.email === email)
     : undefined;
+  const displayName = worker?.fullname || business?.fullname || email || "User";
+  const displayEmail = worker?.email || business?.email || email;
 
-  const initials =
-    worker?.fullname?.charAt(0).toUpperCase() || email?.charAt(0).toUpperCase() || "U";
+  const initials = displayName.charAt(0).toUpperCase();
 
   const {
     register,
@@ -95,8 +98,18 @@ export default function ProfilePage() {
                       </p>
                     </>
                   )
+                ) : isOwner && businessLoading ? (
+                  <>
+                    <Skeleton className="h-6 w-44" />
+                    <Skeleton className="mt-2 h-4 w-52" />
+                  </>
                 ) : (
-                  <h2 className="text-xl font-semibold">{email}</h2>
+                  <>
+                    <h2 className="text-xl font-semibold">{displayName}</h2>
+                    {displayEmail && (
+                      <p className="text-sm text-muted-foreground">{displayEmail}</p>
+                    )}
+                  </>
                 )}
                 <div className="mt-1 flex items-center gap-2">
                   <Badge variant="secondary">{roleLabels[role ?? ""] ?? role}</Badge>
@@ -118,6 +131,79 @@ export default function ProfilePage() {
             </div>
           </CardContent>
         </Card>
+
+        {isOwner && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Store className="h-5 w-5 text-forest-600" />
+                Owner Details
+              </CardTitle>
+              <CardDescription>Your business owner profile information</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {businessLoading ? (
+                <div className="grid gap-5 sm:grid-cols-2">
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <div key={index} className="space-y-2">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-5 w-40" />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <User className="h-4 w-4" />
+                      Full Name
+                    </p>
+                    <p className="font-medium">{business?.fullname || "—"}</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Store className="h-4 w-4" />
+                      Shop Name
+                    </p>
+                    <p className="font-medium">{business?.shopName || "—"}</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Mail className="h-4 w-4" />
+                      Email
+                    </p>
+                    <p className="font-medium">{business?.email || email || "—"}</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Phone className="h-4 w-4" />
+                      Phone
+                    </p>
+                    <p className="font-medium">{business?.phone || "—"}</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <ShieldCheck className="h-4 w-4" />
+                      Registered
+                    </p>
+                    <p className="font-medium">
+                      {business?.createdAt
+                        ? formatDateSafe(business.createdAt, "MMM d, yyyy")
+                        : "—"}
+                    </p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <MapPin className="h-4 w-4" />
+                      Location
+                    </p>
+                    <p className="font-medium">{business?.location || "—"}</p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {isWorker && worker && (
           <Card>

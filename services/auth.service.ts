@@ -4,6 +4,7 @@ import type {
   LoginResponse,
   RegisterRequest,
   BusinessRequest,
+  BusinessResponse,
   ChangePasswordRequest,
 } from "@/types";
 
@@ -16,6 +17,9 @@ export const authService = {
 
   registerBusiness: (data: BusinessRequest) =>
     api.post("/business/registration", data).then((r) => r.data),
+
+  getBusinessProfile: () =>
+    api.get<BusinessResponse>("/business/profile").then((r) => r.data),
 
   changePassword: (data: ChangePasswordRequest) =>
     api.post("/auth/change-password", data).then((r) => r.data),

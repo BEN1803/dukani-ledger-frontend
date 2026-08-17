@@ -1,11 +1,24 @@
 "use client"
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/auth-store";
 import { authService } from "@/services/auth.service";
 import { resolveRoleFromWorkers } from "@/lib/resolve-role";
 import type { LoginRequest, RegisterRequest, BusinessRequest, ChangePasswordRequest } from "@/types";
+
+function getErrorMessage(err: unknown, fallback: string) {
+  if (isAxiosError<{ message?: string }>(err)) {
+    return err.response?.data?.message || err.message || fallback;
+  }
+
+  if (err instanceof Error) {
+    return err.message || fallback;
+  }
+
+  return fallback;
+}
 
 export function useLogin() {
   const setAuth = useAuthStore((s) => s.setAuth);
@@ -21,8 +34,8 @@ export function useLogin() {
       toast.success("Logged in successfully");
       router.push("/dashboard");
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.message || err.message || "Login failed");
+    onError: (err: unknown) => {
+      toast.error(getErrorMessage(err, "Login failed"));
     },
   });
 }
@@ -36,8 +49,8 @@ export function useRegister() {
       toast.success("Registration successful");
       router.push("/login");
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.message || err.message || "Registration failed");
+    onError: (err: unknown) => {
+      toast.error(getErrorMessage(err, "Registration failed"));
     },
   });
 }
@@ -51,9 +64,18 @@ export function useRegisterBusiness() {
       toast.success("Business created successfully");
       router.push("/login");
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.message || err.message || "Registration failed");
+    onError: (err: unknown) => {
+      toast.error(getErrorMessage(err, "Registration failed"));
     },
+  });
+}
+
+export function useBusinessProfile(enabled = true) {
+  return useQuery({
+    queryKey: ["business-profile"],
+    queryFn: () => authService.getBusinessProfile(),
+    enabled,
+    retry: false,
   });
 }
 
@@ -68,8 +90,8 @@ export function useChangePassword() {
       logout();
       router.push("/login");
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.message || err.message || "Failed to change password");
+    onError: (err: unknown) => {
+      toast.error(getErrorMessage(err, "Failed to change password"));
     },
   });
 }
