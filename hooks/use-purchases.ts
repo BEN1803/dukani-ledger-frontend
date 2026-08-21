@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { purchasesService } from "@/services/purchases.service";
 import { useAuthStore } from "@/store/auth-store";
 import { useWorkers } from "@/hooks/use-workers";
+import posthog from "@/lib/posthog";
 import type { PageResponse, PurchaseRequest, PurchaseResponse } from "@/types";
 
 const WORKER_PURCHASES_PAGE_SIZE = 100;
@@ -129,10 +130,11 @@ export function useCreatePurchase() {
 
   return useMutation({
     mutationFn: (data: PurchaseRequest) => purchasesService.create(data),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["purchases"] });
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["stock"] });
+      posthog.capture("purchase_created", { productName: variables.productName, quantity: variables.quantity, costPrice: variables.costPrice });
       toast.success("Purchase recorded successfully");
     },
     onError: (err: unknown) => {

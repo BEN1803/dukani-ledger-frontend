@@ -1,11 +1,13 @@
 "use client"
 import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { PostHogProvider } from "posthog-js/react";
 import { ThemeProvider } from "@/lib/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
 import { useAuthStore } from "@/store/auth-store";
 import { resolveRoleFromWorkers } from "@/lib/resolve-role";
+import posthog from "@/lib/posthog";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,20 +41,22 @@ export function Providers({ children }: { children: React.ReactNode }) {
   if (!mounted) return null;
 
   return (
-    <ThemeProvider defaultTheme="light">
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          {children}
-          <Toaster
-          position="top-right"
-          richColors
-          closeButton
-          toastOptions={{
-            duration: 4000,
-          }}
-        />
-        </TooltipProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <PostHogProvider client={posthog}>
+      <ThemeProvider defaultTheme="light">
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            {children}
+            <Toaster
+            position="top-right"
+            richColors
+            closeButton
+            toastOptions={{
+              duration: 4000,
+            }}
+          />
+          </TooltipProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </PostHogProvider>
   );
 }

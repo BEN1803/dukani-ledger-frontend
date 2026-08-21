@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { BusinessResponse, Role } from "@/types";
+import posthog from "@/lib/posthog";
 
 const VALID_ROLES: Role[] = ["OWNER", "WORKER", "ADMIN"];
 
@@ -66,6 +67,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.removeItem("email");
     localStorage.removeItem("role");
     localStorage.removeItem(BUSINESS_KEY);
+    posthog.reset();
     set({ token: null, email: null, role: null, business: null, isAuthenticated: false });
   },
   hydrate: () => {

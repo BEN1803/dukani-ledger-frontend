@@ -2,6 +2,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { workersService } from "@/services/workers.service";
+import posthog from "@/lib/posthog";
 import type { WorkerRequest, UpdateWorkerRequest } from "@/types";
 
 export function useWorkers(enabled = true) {
@@ -16,8 +17,9 @@ export function useAddWorker() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: WorkerRequest) => workersService.add(data),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       toast.success("Worker added successfully");
+      posthog.capture("worker_added", { fullname: variables.fullname, email: variables.email, gender: variables.gender });
       queryClient.invalidateQueries({ queryKey: ["workers"] });
     },
     onError: (err: any) => {
@@ -31,8 +33,9 @@ export function useUpdateWorker() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateWorkerRequest }) =>
       workersService.update(id, data),
-    onSuccess: () => {
+    onSuccess: (_data, { id, data }) => {
       toast.success("Worker updated successfully");
+      posthog.capture("worker_updated", { workerId: id, ...data });
       queryClient.invalidateQueries({ queryKey: ["workers"] });
     },
     onError: (err: any) => {
@@ -46,8 +49,9 @@ export function useUpdateWorkerStatus() {
   return useMutation({
     mutationFn: ({ id, status }: { id: number; status: string }) =>
       workersService.updateStatus(id, status),
-    onSuccess: () => {
+    onSuccess: (_data, { id, status }) => {
       toast.success("Worker status updated");
+      posthog.capture("worker_status_changed", { workerId: id, status });
       queryClient.invalidateQueries({ queryKey: ["workers"] });
     },
     onError: (err: any) => {

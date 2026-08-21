@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth-store";
 import { useSidebarStore } from "@/store/sidebar-store";
 import { Button } from "@/components/ui/button";
+import posthog from "@/lib/posthog";
 import type { Role } from "@/types";
 
 interface NavItem {
@@ -58,6 +59,8 @@ export function Sidebar() {
 
   const visibleItems = navItems.filter(
     (item) => role && item.roles.includes(role)
+  ).filter(
+    (item) => item.href !== "/reports" || posthog.isFeatureEnabled("enable-reports")
   );
 
   const roleLabel = role

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useAuthStore } from "@/store/auth-store";
 import { authService } from "@/services/auth.service";
 import { resolveRoleFromWorkers } from "@/lib/resolve-role";
+import posthog from "@/lib/posthog";
 import type { LoginRequest, RegisterRequest, BusinessRequest, ChangePasswordRequest } from "@/types";
 
 function getErrorMessage(err: unknown, fallback: string) {
@@ -31,6 +32,8 @@ export function useLogin() {
       setAuth(res.token, res.email, res.role ?? null);
       const role = res.role ?? (await resolveRoleFromWorkers(res.email));
       setRole(role);
+      posthog.identify(res.email, { email: res.email, role });
+      posthog.capture("user_logged_in", { email: res.email, role });
       toast.success("Logged in successfully");
       router.push("/dashboard");
     },
@@ -47,6 +50,7 @@ export function useRegister() {
     mutationFn: (data: RegisterRequest) => authService.register(data),
     onSuccess: () => {
       toast.success("Registration successful");
+      posthog.capture("user_registered");
       router.push("/login");
     },
     onError: (err: unknown) => {
@@ -62,6 +66,7 @@ export function useRegisterBusiness() {
     mutationFn: (data: BusinessRequest) => authService.registerBusiness(data),
     onSuccess: () => {
       toast.success("Business created successfully");
+      posthog.capture("business_registered", { shopName: undefined });
       router.push("/login");
     },
     onError: (err: unknown) => {
@@ -96,6 +101,8 @@ export function useChangePassword() {
     mutationFn: (data: ChangePasswordRequest) => authService.changePassword(data),
     onSuccess: () => {
       toast.success("Password changed successfully. Please sign in again.");
+      posthog.reset();
+      posthog.capture("password_changed");
       logout();
       router.push("/login");
     },

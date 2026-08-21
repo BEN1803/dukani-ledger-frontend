@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { productsService } from "@/services/products.service";
+import posthog from "@/lib/posthog";
 import type { UpdateProductRequest } from "@/types";
 
 export function useProducts() {
@@ -25,8 +26,9 @@ export function useUpdateProduct() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateProductRequest }) =>
       productsService.update(id, data),
-    onSuccess: () => {
+    onSuccess: (_data, { id, data }) => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
+      posthog.capture("product_updated", { productId: id, ...data });
       toast.success("Product updated successfully");
     },
     onError: (err: any) => {

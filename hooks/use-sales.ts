@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { salesService } from "@/services/sales.service";
+import posthog from "@/lib/posthog";
 import type { SaleRequest, UpdateSaleRequest } from "@/types";
 
 export function useSales(page = 0, size = 10) {
@@ -24,10 +25,11 @@ export function useCreateSale() {
 
   return useMutation({
     mutationFn: (data: SaleRequest) => salesService.create(data),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["sales"] });
       queryClient.invalidateQueries({ queryKey: ["stock"] });
       queryClient.invalidateQueries({ queryKey: ["profits"] });
+      posthog.capture("sale_created", { productId: variables.productId, quantity: variables.quantity, sellingPrice: variables.sellingPrice });
       toast.success("Sale completed successfully");
     },
     onError: (err: any) => {
@@ -42,9 +44,10 @@ export function useUpdateSale() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateSaleRequest }) =>
       salesService.update(id, data),
-    onSuccess: () => {
+    onSuccess: (_data, { id, data }) => {
       queryClient.invalidateQueries({ queryKey: ["sales"] });
       queryClient.invalidateQueries({ queryKey: ["profits"] });
+      posthog.capture("sale_updated", { saleId: id, sellingPrice: data.sellingPrice });
       toast.success("Sale updated successfully");
     },
     onError: (err: any) => {
