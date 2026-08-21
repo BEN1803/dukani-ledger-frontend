@@ -12,6 +12,40 @@ export function useSales(page = 0, size = 10) {
   });
 }
 
+export function useAllSales(date?: string) {
+  return useQuery({
+    queryKey: ["sales", "all", date],
+    queryFn: async () => {
+      const firstPage = await salesService.list(0, 100);
+      if (firstPage.totalPages <= 1) return firstPage.content;
+
+      const remaining = await Promise.all(
+        Array.from({ length: firstPage.totalPages - 1 }, (_, i) =>
+          salesService.list(i + 1, 100)
+        )
+      );
+
+      return [
+        ...firstPage.content,
+        ...remaining.flatMap((p) => p.content),
+      ];
+    },
+    select: (sales) => {
+      if (!date) return sales;
+      return sales.filter((sale) => {
+        if (!sale.soldAt) return false;
+        const saleDate = new Date(sale.soldAt);
+        const target = new Date(date + "T00:00:00");
+        return (
+          saleDate.getFullYear() === target.getFullYear() &&
+          saleDate.getMonth() === target.getMonth() &&
+          saleDate.getDate() === target.getDate()
+        );
+      });
+    },
+  });
+}
+
 export function useSalesForProduct(productId: number, page = 0, size = 10) {
   return useQuery({
     queryKey: ["sales", "product", productId, page, size],
