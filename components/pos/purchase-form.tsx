@@ -50,6 +50,7 @@ export function PurchaseForm({
   const [addingCategory, setAddingCategory] = useState(false);
   const [newCategory, setNewCategory] = useState("");
   const [categoryValue, setCategoryValue] = useState("");
+  const [localCategories, setLocalCategories] = useState<CategoryResponse[]>([]);
   const rootRef = useRef<HTMLDivElement>(null);
 
   const productNames = Array.from(new Set(products.map((p) => p.name.trim()).filter(Boolean)));
@@ -68,6 +69,13 @@ export function PurchaseForm({
     document.addEventListener("mousedown", onDocClick);
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
+
+  const allCategories = [
+    ...categories,
+    ...localCategories.filter(
+      (lc) => !categories.some((c) => c.name === lc.name)
+    ),
+  ];
 
   const {
     register,
@@ -89,6 +97,10 @@ export function PurchaseForm({
     const name = newCategory.trim();
     if (!name || isCreatingCategory) return;
     await onCreateCategory(name);
+    setLocalCategories((prev) => {
+      if (prev.some((c) => c.name === name)) return prev;
+      return [...prev, { id: Date.now(), name, ownerName: "", createdAt: "", updatedAt: "" }];
+    });
     setCategoryValue(name);
     setValue("categoryName", name);
     setAddingCategory(false);
@@ -174,11 +186,11 @@ export function PurchaseForm({
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder={categories.length ? "Select a category" : "No categories yet"} />
+                <SelectValue placeholder={allCategories.length ? "Select a category" : "No categories yet"} />
               </SelectTrigger>
               <SelectContent>
-                {categories.map((c) => (
-                  <SelectItem key={c.id} value={c.name}>
+                {allCategories.map((c) => (
+                  <SelectItem key={c.name} value={c.name}>
                     {c.name}
                   </SelectItem>
                 ))}

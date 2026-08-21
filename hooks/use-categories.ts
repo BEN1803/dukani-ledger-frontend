@@ -22,7 +22,6 @@ export function useCreateCategory() {
         if (!old) return [newCategory];
         return [...old, newCategory];
       });
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
       posthog.capture("category_created", { name: variables.name });
       toast.success("Category created successfully");
     },
