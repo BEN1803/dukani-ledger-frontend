@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/store/auth-store";
 import { useWorkers } from "@/hooks/use-workers";
-import { useBusinessProfile, useChangePassword } from "@/hooks/use-auth";
+import { useOwnerInfo, useChangePassword } from "@/hooks/use-auth";
 import { formatDateSafe } from "@/lib/dates";
 import { Mail, Phone, MapPin, User, ShieldCheck, KeyRound, Store } from "lucide-react";
 
@@ -41,14 +41,14 @@ export default function ProfilePage() {
   const isWorker = role === "WORKER";
   const isOwner = role === "OWNER";
   const { data: workers } = useWorkers(isWorker);
-  const { data: business, isLoading: businessLoading } = useBusinessProfile(isOwner);
+  const { data: owner, isLoading: ownerLoading } = useOwnerInfo(isOwner);
   const changePassword = useChangePassword();
 
   const worker = isWorker
     ? workers?.find((w) => w.email === email)
     : undefined;
-  const displayName = worker?.fullname || business?.fullname || email || "User";
-  const displayEmail = worker?.email || business?.email || email;
+  const displayName = worker?.fullname || owner?.fullname || email || "User";
+  const displayEmail = worker?.email || owner?.email || email;
 
   const initials = displayName.charAt(0).toUpperCase();
 
@@ -98,7 +98,7 @@ export default function ProfilePage() {
                       </p>
                     </>
                   )
-                ) : isOwner && businessLoading ? (
+                ) : isOwner && ownerLoading ? (
                   <>
                     <Skeleton className="h-6 w-44" />
                     <Skeleton className="mt-2 h-4 w-52" />
@@ -142,7 +142,7 @@ export default function ProfilePage() {
               <CardDescription>Your business owner profile information</CardDescription>
             </CardHeader>
             <CardContent>
-              {businessLoading ? (
+              {ownerLoading ? (
                 <div className="grid gap-5 sm:grid-cols-2">
                   {Array.from({ length: 6 }).map((_, index) => (
                     <div key={index} className="space-y-2">
@@ -158,28 +158,28 @@ export default function ProfilePage() {
                       <User className="h-4 w-4" />
                       Full Name
                     </p>
-                    <p className="font-medium">{business?.fullname || "—"}</p>
+                    <p className="font-medium">{owner?.fullname || "—"}</p>
                   </div>
                   <div className="space-y-1.5">
                     <p className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Store className="h-4 w-4" />
                       Shop Name
                     </p>
-                    <p className="font-medium">{business?.shopName || "—"}</p>
+                    <p className="font-medium">{owner?.shopName || "—"}</p>
                   </div>
                   <div className="space-y-1.5">
                     <p className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Mail className="h-4 w-4" />
                       Email
                     </p>
-                    <p className="font-medium">{business?.email || email || "—"}</p>
+                    <p className="font-medium">{owner?.email || email || "—"}</p>
                   </div>
                   <div className="space-y-1.5">
                     <p className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Phone className="h-4 w-4" />
                       Phone
                     </p>
-                    <p className="font-medium">{business?.phone || "—"}</p>
+                    <p className="font-medium">{owner?.phone || "—"}</p>
                   </div>
                   <div className="space-y-1.5">
                     <p className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -187,8 +187,8 @@ export default function ProfilePage() {
                       Registered
                     </p>
                     <p className="font-medium">
-                      {business?.createdAt
-                        ? formatDateSafe(business.createdAt, "MMM d, yyyy")
+                      {owner?.createdAt
+                        ? formatDateSafe(owner.createdAt, "MMM d, yyyy")
                         : "—"}
                     </p>
                   </div>
@@ -197,7 +197,7 @@ export default function ProfilePage() {
                       <MapPin className="h-4 w-4" />
                       Location
                     </p>
-                    <p className="font-medium">{business?.location || "—"}</p>
+                    <p className="font-medium">{owner?.location || "—"}</p>
                   </div>
                 </div>
               )}

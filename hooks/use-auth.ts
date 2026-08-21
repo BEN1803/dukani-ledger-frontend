@@ -79,6 +79,15 @@ export function useBusinessProfile(enabled = true) {
   });
 }
 
+export function useOwnerInfo(enabled = true) {
+  return useQuery({
+    queryKey: ["owner-info"],
+    queryFn: () => authService.getOwnerInfo(),
+    enabled,
+    retry: false,
+  });
+}
+
 export function useChangePassword() {
   const logout = useAuthStore((s) => s.logout);
   const router = useRouter();

@@ -65,6 +65,16 @@ export interface BusinessResponse {
   updatedAt: string | null;
 }
 
+export interface OwnerResponse {
+  ownerId: number;
+  fullname: string;
+  email: string;
+  phone: string;
+  shopName: string;
+  location: string;
+  createdAt: string;
+}
+
 export interface ChangePasswordRequest {
   oldPassword: string;
   newPassword: string;
