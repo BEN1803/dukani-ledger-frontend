@@ -125,6 +125,45 @@ export function usePurchase(id: number) {
   });
 }
 
+export function useAllPurchases(date?: string) {
+  const role = useAuthStore((s) => s.role);
+  const email = useAuthStore((s) => s.email);
+  const { data: workers } = useWorkers(role === "WORKER");
+  const workerName =
+    role === "WORKER"
+      ? workers?.find((worker) => worker.email === email)?.fullname ?? email
+      : null;
+  const workerIdentifiers = getWorkerIdentifiers(workerName, email);
+
+  return useQuery({
+    queryKey: ["purchases", "all", role, workerName, email, date],
+    queryFn: async () => {
+      const allPurchases = await listAllPurchasePages();
+
+      const filtered =
+        role === "WORKER"
+          ? allPurchases.filter((p) =>
+              workerIdentifiers.has(normalizeIdentity(p.purchasedByName))
+            )
+          : allPurchases;
+
+      if (!date) return filtered;
+
+      return filtered.filter((purchase) => {
+        if (!purchase.purchasedAt) return false;
+        const purchaseDate = new Date(purchase.purchasedAt);
+        const target = new Date(date + "T00:00:00");
+        return (
+          purchaseDate.getFullYear() === target.getFullYear() &&
+          purchaseDate.getMonth() === target.getMonth() &&
+          purchaseDate.getDate() === target.getDate()
+        );
+      });
+    },
+    enabled: !!role && (role !== "WORKER" || !!workerName),
+  });
+}
+
 export function useCreatePurchase() {
   const queryClient = useQueryClient();
 
